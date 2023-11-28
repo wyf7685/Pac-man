@@ -39,3 +39,10 @@ poetry install
   - `Maze.py`
 
     包含一个`BFS`算法实现的迷宫寻路算法，用于在游戏中实现`Ghost`的寻路能力。
+
+
+## 贡献者
+
+  - [`Jackpot-Z`](https://github.com/Jackpot-Z)
+  - [`wyf7685`](https://github.com/wyf7685)
+
