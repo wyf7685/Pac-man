@@ -6,13 +6,11 @@
   
 
 ## 运行方法
-  1. 使用 `poetry` 包管理器创建虚拟环境。
-```sh
-poetry install
-```
+  1. 执行 `poetry install` 命令，使用 `poetry` 包管理器创建虚拟环境。
+   
   2. 执行 `poetry run Game.py` 命令，开始游戏。
 
-  3. 使用方向键(↑↓←→)控制角色移动。
+  3. 使用方向键 (`↑↓←→`) 控制角色移动。
 
 ## 程序说明
 
@@ -22,7 +20,7 @@ poetry install
 
   - `Const.py`
 
-    定义常量，例如资源路径和颜色RGB元组。
+    定义常量，包含资源路径和颜色RGB元组。
 
   - `Levels.py`
 
@@ -32,13 +30,11 @@ poetry install
 
   - `Sprites.py`
 
-    定义游戏中各实体，继承 `pygame.sprites.Sprite` 类实现。
-
-    包含 `Wall`, `Food`, `Ghost`, `Hero`，实现游戏内各实体的交互。
+    定义游戏中各实体，继承自 `pygame.sprites.Sprite` 类，包含 `Wall`, `Food`, `Ghost`, `Hero`，实现游戏内各实体的交互。
 
   - `Maze.py`
 
-    包含一个`BFS`算法实现的迷宫寻路算法，用于在游戏中实现`Ghost`的寻路能力。
+    包含一个`BFS`算法实现的迷宫寻路函数，用于在游戏中实现`Ghost`的寻路能力。
 
 
 ## 贡献者
