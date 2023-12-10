@@ -10,12 +10,12 @@ from pygame.sprite import Group, Sprite
 from src.maze import Maze, MazePath, get_path
 from src.const import *
 
-CORNER_POS: Set[Tuple[int, int]] = {
+CORNER_POS: Set[Position] = {
     (x * 30, y * 30) for x, y in {(1, 1), (1, 19), (19, 1), (19, 19)}
 }
 
 
-def distance(pos1: tuple[int, int], pos2: tuple[int, int]):
+def distance(pos1: Position, pos2: Position):
     return math.sqrt(math.pow(pos1[0] - pos2[0], 2) + math.pow(pos1[1] - pos2[1], 2))
 
 
@@ -46,7 +46,7 @@ class Wall(Sprite):
     rect: Rect
 
     @classmethod
-    def create(cls, x, y, width, height, color):
+    def create(cls, x: int, y: int, width: int, height: int, color: Color):
         self = cls()
         self.image = Surface([width, height])
         self.image.fill(color)
@@ -69,11 +69,13 @@ class Food(Sprite):
     image: Surface
     rect: Rect
     is_super: bool = False
-    __super_duration: float = 10.0
-    __super_size: float = 3
+    super_duration: float = 10.0
+    super_size: float = 3
 
     @classmethod
-    def create(cls, x, y, width, height, color, bg_color):
+    def create(
+        cls, x: int, y: int, width: int, height: int, color: Color, bg_color: Color
+    ):
         self = cls()
         self.base_x = x
         self.base_y = y
@@ -87,7 +89,7 @@ class Food(Sprite):
 
     def onEaten(self, hero: "Hero"):
         if self.is_super:
-            hero.super_food = time.time() + self.__super_duration
+            hero.super_food = time.time() + self.super_duration
 
     def draw(self):
         x = self.base_x
@@ -96,7 +98,7 @@ class Food(Sprite):
         height = self.base_height
 
         if self.is_super:
-            size = round(self.__super_size)
+            size = round(self.super_size)
             x -= size
             y -= size
             width += size * 2
@@ -115,9 +117,9 @@ class Food(Sprite):
         self.draw()
 
     def update(self, *args: Any, **kwargs: Any) -> None:
-        self.__super_size += 0.03
-        if self.__super_size >= 3:
-            self.__super_size = 2.0
+        self.super_size += 0.03
+        if self.super_size >= 3:
+            self.super_size = 2.0
 
         self.draw()
         return super().update(*args, **kwargs)
@@ -155,7 +157,7 @@ class Ghost(Sprite):
     """Birthplace coordinates."""
 
     __direction_update: float
-    __last_direction: Tuple[float, float]
+    __last_direction: Direction
 
     @classmethod
     def create(cls, x: int, y: int, image_path: str):
@@ -301,7 +303,7 @@ class Ghost(Sprite):
             direction = arr[0][1 + preset]
             preset = (preset + 1) % 2
 
-    def set_worried(self, worried: bool):
+    def set_worried(self, worried: bool) -> None:
         self.__worried = worried
 
         if not self.__worried:
@@ -349,16 +351,14 @@ class Hero(Sprite):
     rect: Rect
     pre_x: int
     pre_y: int
-    base_speed: List[float]
-    speed: List[int]
+    base_speed: Tuple[int, int]
+    speed: Tuple[int, int]
     is_move: bool
-    tracks: List[List[float]]
-    tracks_loc: List[int]
 
     super_food: Optional[float]
 
     @classmethod
-    def create(cls, x: int, y: int):
+    def create(cls, x: int, y: int) -> "Hero":
         self = cls()
         self.nowframe = 0
         self.allframe = 1
@@ -371,15 +371,13 @@ class Hero(Sprite):
         self.rect.top = y
         self.pre_x = x
         self.pre_y = y
-        self.base_speed = [3.0, 3.0]
-        self.speed = [0, 0]
+        self.base_speed = (3, 3)
+        self.speed = (0, 0)
         self.is_move = False
-        self.tracks = []
-        self.tracks_loc = [0, 0]
         self.super_food = None
         return self
 
-    def changeSpeed(self, direction=[0, 0]):
+    def changeSpeed(self, direction: Direction):
         if direction[0] < 0:
             self.image = pygame.transform.flip(self.base_image, True, False)
         elif direction[0] > 0:
@@ -388,13 +386,12 @@ class Hero(Sprite):
             self.image = pygame.transform.rotate(self.base_image, 90)
         elif direction[1] > 0:
             self.image = pygame.transform.rotate(self.base_image, -90)
-        if direction == [0, 0]:
-            pass
-        else:
-            self.speed = [
-                direction[0] * self.base_speed[0],
-                direction[1] * self.base_speed[1],
-            ]
+
+        if all(direction):
+            self.speed = (
+                round(direction[0] * self.base_speed[0]),
+                round(direction[1] * self.base_speed[1]),
+            )
         return self.speed
 
     def check_collide(
@@ -405,7 +402,7 @@ class Hero(Sprite):
         else:
             self.nowframe = 0
         self.base_image = pygame.image.load(self.images[round(self.nowframe)]).convert()
-        self.changeSpeed()
+        self.changeSpeed((0, 0))
         if not self.is_move:
             return False
         x_pre = self.rect.left
@@ -423,12 +420,15 @@ class Hero(Sprite):
         return True
 
     def check_food(self, food_sprites: "Group[Food]") -> List[Food]:
+        now = time.time()
+
         eaten = pygame.sprite.spritecollide(self, food_sprites, True)
         for food in eaten:
-            food.onEaten(self)
+            if food.is_super:
+                self.super_food = now + food.super_duration
 
         # Check the expiration time of SuperFood.
-        if self.super_food and time.time() >= self.super_food:
+        if self.super_food and now >= self.super_food:
             self.super_food = None
 
         return eaten

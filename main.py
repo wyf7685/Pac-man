@@ -50,19 +50,19 @@ def startLevelGame(level: Level, screen: pygame.Surface, font: pygame.font.Font)
             if event.type == pygame.KEYDOWN:
                 if event.key == pygame.K_LEFT:
                     for hero in hero_sprites:
-                        hero.changeSpeed([-1, 0])
+                        hero.changeSpeed((-1, 0))
                         hero.is_move = True
                 elif event.key == pygame.K_RIGHT:
                     for hero in hero_sprites:
-                        hero.changeSpeed([1, 0])
+                        hero.changeSpeed((1, 0))
                         hero.is_move = True
                 elif event.key == pygame.K_UP:
                     for hero in hero_sprites:
-                        hero.changeSpeed([0, -1])
+                        hero.changeSpeed((0, -1))
                         hero.is_move = True
                 elif event.key == pygame.K_DOWN:
                     for hero in hero_sprites:
-                        hero.changeSpeed([0, 1])
+                        hero.changeSpeed((0, 1))
                         hero.is_move = True
 
             if event.type == pygame.KEYUP:

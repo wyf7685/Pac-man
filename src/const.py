@@ -24,4 +24,6 @@ PinkyPATH = os.path.join(_cwd, "assets/images/Pinky.png")
 GreyPATH = os.path.join(_cwd, "assets/images/Grey.png")
 EatenPATH = os.path.join(_cwd, "assets/images/Eaten.png")
 
+Color: _t.TypeAlias = _t.Tuple[int, int, int]
 Direction: _t.TypeAlias = _t.Tuple[float, float]
+Position: _t.TypeAlias = _t.Tuple[int, int]
