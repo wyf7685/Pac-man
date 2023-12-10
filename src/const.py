@@ -1,5 +1,6 @@
 import os
 import typing as _t
+import pathlib as _p
 
 BLACK = (0, 0, 0)
 WHITE = (255, 255, 255)
@@ -27,3 +28,5 @@ EatenPATH = os.path.join(_cwd, "assets/images/Eaten.png")
 Color: _t.TypeAlias = _t.Tuple[int, int, int]
 Direction: _t.TypeAlias = _t.Tuple[float, float]
 Position: _t.TypeAlias = _t.Tuple[int, int]
+
+LEVELPATH = _p.Path("assets/levels")

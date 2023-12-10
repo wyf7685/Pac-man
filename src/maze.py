@@ -29,7 +29,7 @@ Maze = List[List[int]]
 MazePath = List[Pos]
 
 
-def generate_maze(walls: List[List[int]]) -> Maze:
+def generate_maze(walls: List[Tuple[int,int,int,int]]) -> Maze:
     large_maze = [[PASS for _ in range(101)] for _ in range(101)]
 
     # For each segment of the wall, convert it to large_maze with a ratio of pixels:coordinates = 6:1

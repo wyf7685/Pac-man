@@ -1,16 +1,35 @@
 import random
-from typing import Type
 
 import pygame
+from pydantic import BaseModel
 from pygame.sprite import Group
 
+from src.const import *
 from src.maze import generate_maze
 from src.sprites import *
-from src.const import *
+
+
+class _LevelData_no_food(BaseModel):
+    row: Tuple[int, int]
+    col: Tuple[int, int]
+
+
+class _LevelData(BaseModel):
+    seq: int
+    name: str
+    hero: Position
+    blinky: Position
+    clyde: Position
+    inky: Position
+    pinky: Position
+    no_food: List[_LevelData_no_food]
+    gate: List[Tuple[int, int, int, int]]
+    wall: List[Tuple[int, int, int, int]]
 
 
 class Level(object):
-    info: str
+    _data: _LevelData
+    name: str
     maze: list[list[int]]
     wall_sprites: "Group[Wall]"
     gate_sprites: "Group[Wall]"
@@ -18,124 +37,72 @@ class Level(object):
     ghost_sprites: "Group[Ghost]"
     food_sprites: "Group[Food]"
 
-    def __init__(self):
-        raise NotImplemented
+    def __init__(self, data: _LevelData):
+        self._data = data
+        self.name = data.name
 
-    def setupWalls(self, wall_color) -> "Group[Wall]":
-        raise NotImplemented
-
-    def setupGate(self, gate_color) -> "Group[Wall]":
-        raise NotImplemented
-
-    def setupPlayers(self) -> tuple["Group[Hero]", "Group[Ghost]"]:
-        raise NotImplemented
-
-    def setupFood(self, food_color, bg_color) -> "Group[Food]":
-        raise NotImplemented
-
-
-class Level1(Level):
-    """Level1"""
-
-    def __init__(self):
-        self.info = "Level-1"
-
-    def setupWalls(self, wall_color):
-        """Create Walls"""
-        self.wall_sprites = pygame.sprite.Group()
-        wall_positions = [
-            [0, 0, 6, 600],
-            [0, 0, 600, 6],
-            [0, 600, 606, 6],
-            [600, 0, 6, 606],
-            [300, 0, 6, 66],
-            [60, 60, 186, 6],
-            [360, 60, 186, 6],
-            [60, 120, 66, 6],
-            [60, 120, 6, 126],
-            [180, 120, 246, 6],
-            [300, 120, 6, 66],
-            [480, 120, 66, 6],
-            [540, 120, 6, 126],
-            [120, 180, 126, 6],
-            [120, 180, 6, 126],
-            [360, 180, 126, 6],
-            [480, 180, 6, 126],
-            [180, 240, 6, 126],
-            [180, 360, 246, 6],
-            [420, 240, 6, 126],
-            # [240, 240, 42, 6],  # Gate左侧
-            # [324, 240, 42, 6],  # Gate右侧
-            [240, 240, 6, 66],
-            [240, 300, 126, 6],
-            [360, 240, 6, 66],
-            [0, 300, 66, 6],
-            [540, 300, 66, 6],
-            [60, 360, 66, 6],
-            [60, 360, 6, 186],
-            [480, 360, 66, 6],
-            [540, 360, 6, 186],
-            [120, 420, 366, 6],
-            [120, 420, 6, 66],
-            [480, 420, 6, 66],
-            [180, 480, 246, 6],
-            [300, 480, 6, 66],
-            [120, 540, 126, 6],
-            [360, 540, 126, 6],
-        ]
-
-        self.maze = generate_maze(wall_positions)
-
-        for wall_position in wall_positions:
-            wall = Wall.create(*[*wall_position, wall_color])
-            self.wall_sprites.add(wall)
+    def setup_wall(self, wall_color: Color):
+        self.maze = generate_maze(self._data.wall)
+        walls = [Wall.create(*[*wall, wall_color]) for wall in self._data.wall]
+        self.wall_sprites = Group(walls)
         return self.wall_sprites
 
-    def setupGate(self, gate_color):
-        """Create Gate"""
-        self.gate_sprites = pygame.sprite.Group()
-        self.gate_sprites.add(Wall.create(282, 242, 42, 2, gate_color))
-        self.gate_sprites.add(Wall.create(240, 242, 42, 2, gate_color))  # Gate左侧
-        self.gate_sprites.add(Wall.create(324, 242, 42, 2, gate_color))  # Gate右侧
+    def setup_gate(self, gate_color: Color):
+        gates = [Wall.create(*[*gate, gate_color]) for gate in self._data.gate]
+        self.gate_sprites = Group(gates)
         return self.gate_sprites
 
-    def setupPlayers(self):
-        """Create Players(Including ghosts and hero)"""
-        self.hero_sprites = pygame.sprite.Group()
-        self.hero_sprites.add(Hero.create(287, 439))
-
-        self.ghost_sprites = pygame.sprite.Group()
-        self.ghost_sprites.add(Ghost.create(287, 199, BlinkyPATH))
-        self.ghost_sprites.add(Ghost.create(319, 259, ClydePATH))
-        self.ghost_sprites.add(Ghost.create(255, 259, InkyPATH))
-        self.ghost_sprites.add(Ghost.create(287, 259, PinkyPATH))
-
+    def setup_player(self):
+        self.hero_sprites = Group(Hero.create(*self._data.hero))
+        ghosts = [
+            Ghost.create(*self._data.blinky, BlinkyPATH),
+            Ghost.create(*self._data.clyde, ClydePATH),
+            Ghost.create(*self._data.inky, InkyPATH),
+            Ghost.create(*self._data.pinky, PinkyPATH),
+        ]
+        self.ghost_sprites = Group(*ghosts)
         return self.hero_sprites, self.ghost_sprites
 
-    def setupFood(self, food_color, bg_color):
-        """Create Food"""
-        self.food_sprites = pygame.sprite.Group()
+    def setup_food(self, food_color: Color, bg_color: Color):
         foods = []  # type: List[Food]
 
-        for row in range(19):
-            for col in range(19):
-                if (row == 7 or row == 8) and (col == 8 or col == 9 or col == 10):
+        def invalid(row: int, col: int):
+            for item in self._data.no_food:
+                if (
+                    item.row[0] <= row <= item.row[1]
+                    and item.col[0] <= col <= item.col[1]
+                ):
+                    return True
+            return False
+
+        for col in range(len(self.maze)):
+            for row in range(len(self.maze[col])):
+                if self.maze[col][row] == 0 or invalid(row, col):
                     continue
-                else:
-                    fcol = 30 * col + 32
-                    frow = 30 * row + 32
-                    food = Food.create(fcol, frow, 4, 4, food_color, bg_color)
-                    if pygame.sprite.spritecollide(food, self.wall_sprites, False):
-                        continue
-                    if pygame.sprite.spritecollide(food, self.hero_sprites, False):
-                        continue
-                    foods.append(food)
+
+                fcol = 30 * col + 2
+                frow = 30 * row + 2
+                food = Food.create(fcol, frow, 4, 4, food_color, bg_color)
+                if pygame.sprite.spritecollide(food, self.wall_sprites, False):
+                    continue
+                if pygame.sprite.spritecollide(food, self.hero_sprites, False):
+                    continue
+
+                foods.append(food)
 
         for food in random.sample(foods, round(len(foods) / 50)):
             food.set_super()
 
-        self.food_sprites.add(*foods)
+        self.food_sprites = Group(foods)
         return self.food_sprites
 
 
-LEVELS = [Level1]  # type: List[Type[Level]]
+_LEVEL_DATA = sorted(
+    [
+        _LevelData.model_validate_json(p.read_text(encoding="utf-8"))
+        for p in LEVELPATH.iterdir()
+        if p.name.endswith(".json")
+    ],
+    key=lambda x: x.seq,
+)
+LEVELS = [Level(i) for i in _LEVEL_DATA]

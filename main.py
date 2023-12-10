@@ -13,12 +13,12 @@ from src.sprites import Food
 def startLevelGame(level: Level, screen: pygame.Surface, font: pygame.font.Font):
     clock = pygame.time.Clock()
     SCORE = 0
-    level_name_text = font.render(level.info, True, YELLOW)
+    level_name_text = font.render(level.name, True, YELLOW)
 
-    wall_sprites = level.setupWalls(SKYBLUE)
-    gate_sprites = level.setupGate(WHITE)
-    hero_sprites, ghost_sprites = level.setupPlayers()
-    food_sprites = level.setupFood(YELLOW, WHITE)
+    wall_sprites = level.setup_wall(SKYBLUE)
+    gate_sprites = level.setup_gate(WHITE)
+    hero_sprites, ghost_sprites = level.setup_player()
+    food_sprites = level.setup_food(YELLOW, WHITE)
     is_win = False
 
     start_time = time.time()
@@ -196,8 +196,7 @@ def main(screen: pygame.Surface):
     font_small = pygame.font.Font(FONTPATH, 18)
     font_big = pygame.font.Font(FONTPATH, 24)
 
-    for idx, Level in enumerate(LEVELS):
-        level = Level()
+    for idx, level in enumerate(LEVELS):
         is_clearance = startLevelGame(level, screen, font_small)
         showText(screen, font_big, is_clearance, idx == len(LEVELS) - 1)
 
