@@ -197,8 +197,8 @@ def main(screen: pygame.Surface):
     font_big = pygame.font.Font(FONTPATH, 24)
 
     for idx, level in enumerate(LEVELS):
-        is_clearance = startLevelGame(level, screen, font_small)
-        showText(screen, font_big, is_clearance, idx == len(LEVELS) - 1)
+        is_win = startLevelGame(level, screen, font_small)
+        showText(screen, font_big, is_win, idx == len(LEVELS) - 1)
 
 
 if __name__ == "__main__":
