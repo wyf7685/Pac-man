@@ -5,9 +5,9 @@ from typing import List
 
 import pygame
 
-from Const import *
-from Levels import LEVELS, Level
-from Sprites import Food
+from src.const import *
+from src.levels import LEVELS, Level
+from src.sprites import Food
 
 
 def startLevelGame(level: Level, screen: pygame.Surface, font: pygame.font.Font):
@@ -19,10 +19,10 @@ def startLevelGame(level: Level, screen: pygame.Surface, font: pygame.font.Font)
     gate_sprites = level.setupGate(WHITE)
     hero_sprites, ghost_sprites = level.setupPlayers()
     food_sprites = level.setupFood(YELLOW, WHITE)
-    is_clearance = False
+    is_win = False
 
-    started_ghost = [g for g in ghost_sprites]
     start_time = time.time()
+    start_ghost = list(ghost_sprites)
 
     def renderStatusBar():
         nonlocal SCORE
@@ -39,7 +39,7 @@ def startLevelGame(level: Level, screen: pygame.Surface, font: pygame.font.Font)
         if time.time() - start_time < 12:
             idx = round((time.time() - start_time) / 3)
             if idx < 4:
-                started_ghost[idx].is_move = True
+                start_ghost[idx].is_move = True
 
         pygame.key.set_repeat(1, 1)
         for event in pygame.event.get():
@@ -72,7 +72,8 @@ def startLevelGame(level: Level, screen: pygame.Surface, font: pygame.font.Font)
                     or (event.key == pygame.K_UP)
                     or (event.key == pygame.K_DOWN)
                 ):
-                    hero.is_move = False  # type: ignore
+                    for hero in hero_sprites:
+                        hero.is_move = False
 
         # Reset screen
         screen.fill(BLACK)
@@ -102,7 +103,7 @@ def startLevelGame(level: Level, screen: pygame.Surface, font: pygame.font.Font)
 
         # Check game status
         if len(food_sprites) == 0:
-            is_clearance = True
+            is_win = True
             renderStatusBar()
             break
 
@@ -122,7 +123,7 @@ def startLevelGame(level: Level, screen: pygame.Surface, font: pygame.font.Font)
                             SCORE += 10
                     # Otherwise, stop the game
                     else:
-                        is_clearance = False
+                        is_win = False
                         do_break = True
                         break
 
@@ -133,7 +134,7 @@ def startLevelGame(level: Level, screen: pygame.Surface, font: pygame.font.Font)
 
         pygame.display.flip()
         clock.tick(60)
-    return is_clearance
+    return is_win
 
 
 def showText(
@@ -203,4 +204,3 @@ def main(screen: pygame.Surface):
 
 if __name__ == "__main__":
     main(initialize())
-#好耶

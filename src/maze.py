@@ -1,4 +1,3 @@
-import time
 from copy import deepcopy
 from collections import deque
 from typing import List, Optional, Tuple
@@ -26,11 +25,11 @@ class Pos:
         return Pos(self.x + offset[0], self.y + offset[1])
 
 
-MazeType = List[List[int]]
-PathType = List[Pos]
+Maze = List[List[int]]
+MazePath = List[Pos]
 
 
-def generate_maze(walls: List[List[int]]) -> MazeType:
+def generate_maze(walls: List[List[int]]) -> Maze:
     large_maze = [[PASS for _ in range(101)] for _ in range(101)]
 
     # For each segment of the wall, convert it to large_maze with a ratio of pixels:coordinates = 6:1
@@ -49,7 +48,7 @@ def generate_maze(walls: List[List[int]]) -> MazeType:
     return maze
 
 
-def get_path(maze: MazeType, start_pos: Tuple[int, int], end_pos: Tuple[int, int]):
+def get_path(maze: Maze, start_pos: Tuple[int, int], end_pos: Tuple[int, int]):
     # Deep copy the maze array to avoid subsequent impact
     maze = deepcopy(maze)
     # Convert the starting point/ending point to Pos for easier manipulation.

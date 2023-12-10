@@ -4,9 +4,9 @@ from typing import Type
 import pygame
 from pygame.sprite import Group
 
-from Maze import generate_maze
-from Sprites import *
-from Const import *
+from src.maze import generate_maze
+from src.sprites import *
+from src.const import *
 
 
 class Level(object):
@@ -102,7 +102,7 @@ class Level1(Level):
     def setupPlayers(self):
         """Create Players(Including ghosts and hero)"""
         self.hero_sprites = pygame.sprite.Group()
-        self.hero_sprites.add(Hero.create(287, 439, HEROPATH, HEROPATH2))
+        self.hero_sprites.add(Hero.create(287, 439))
 
         self.ghost_sprites = pygame.sprite.Group()
         self.ghost_sprites.add(Ghost.create(287, 199, BlinkyPATH))

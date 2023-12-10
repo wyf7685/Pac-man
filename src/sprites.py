@@ -7,8 +7,8 @@ import pygame
 from pygame import Rect, Surface
 from pygame.sprite import Group, Sprite
 
-from Maze import MazeType, PathType, get_path
-from Const import *
+from src.maze import Maze, MazePath, get_path
+from src.const import *
 
 CORNER_POS: Set[Tuple[int, int]] = {
     (x * 30, y * 30) for x, y in {(1, 1), (1, 19), (19, 1), (19, 19)}
@@ -132,18 +132,14 @@ class Ghost(Sprite):
     rect: Rect
     pre_x: int
     pre_y: int
-    basic_speed: List[float]
-    speed: List[int]
+    basic_speed: Tuple[float, float]
+    speed: Tuple[int, int]
     is_move: bool
-    tracks: List[List[float]]
-    tracks_loc: List[int]
 
     destination: Tuple[int, int]
-    """Find the destination"""
-    route: PathType
-    """Find the path"""
+    route: MazePath
     __route_update: float
-    """Update the time when searching the path"""
+    """Update time when searching the path"""
     __route_update_interval: float = 1.0
     """Update interval of the searching the path"""
 
@@ -172,11 +168,9 @@ class Ghost(Sprite):
         self.rect.top = y
         self.pre_x = x
         self.pre_y = y
-        self.basic_speed = [3.5, 3.5]
-        self.speed = [0, 0]
+        self.basic_speed = (3.5, 3.5)
+        self.speed = (0, 0)
         self.is_move = False
-        self.tracks = []
-        self.tracks_loc = [0, 0]
 
         self.destination = self.rect.center
         self.route = []
@@ -194,7 +188,7 @@ class Ghost(Sprite):
 
         return self
 
-    def changeSpeed(self, direction):
+    def changeSpeed(self, direction: Direction):
         """Change Direction"""
         if not self.is_move:
             return
@@ -207,13 +201,13 @@ class Ghost(Sprite):
             self.image = pygame.transform.rotate(self.base_image, 90)
         elif direction[1] > 0:
             self.image = pygame.transform.rotate(self.base_image, -90)
-        self.speed = [
-            direction[0] * self.basic_speed[0],
-            direction[1] * self.basic_speed[1],
-        ]
+        self.speed = (
+            round(direction[0] * self.basic_speed[0]),
+            round(direction[1] * self.basic_speed[1]),
+        )
         return self.speed
 
-    def randomDirection(self):
+    def randomDirection(self) -> Direction:
         """Random Direction"""
         return random.choice([(-0.5, 0), (0.5, 0), (0, 0.5), (0, -0.5)])
 
@@ -239,7 +233,7 @@ class Ghost(Sprite):
         return True, collide
 
     def update_destination(
-        self, maze: MazeType, destination: Tuple[int, int], *, instant: bool = False
+        self, maze: Maze, destination: Tuple[int, int], *, instant: bool = False
     ):
         now = time.time()
         if now - self.__route_update >= self.__route_update_interval or instant:
@@ -247,7 +241,7 @@ class Ghost(Sprite):
             self.destination = destination
             self.route = get_path(maze, self.rect.center, destination)
 
-    def next_direction(self, hero: "Hero", maze: MazeType) -> Tuple[float, float]:
+    def next_direction(self, hero: "Hero", maze: Maze) -> Direction:
         self.set_worried(hero.super_food is not None)
         self.__worry_time = (
             hero.super_food - time.time() if hero.super_food is not None else 0.0
@@ -283,9 +277,7 @@ class Ghost(Sprite):
         next = self.route[1]
         return ((next.x - pos.x) / 2, (next.y - pos.y) / 2)
 
-    def update_position(
-        self, hero: "Hero", wall_sprites: "Group[Wall]", maze: MazeType
-    ):
+    def update_position(self, hero: "Hero", wall_sprites: "Group[Wall]", maze: Maze):
         if time.time() - self.__direction_update < 0.2:
             direction = self.__last_direction
         else:
@@ -295,13 +287,13 @@ class Ghost(Sprite):
         preset = 0
 
         while True:
-            self.changeSpeed(direction)
+            self.changeSpeed(direction)  # type: ignore
             success, collide = self.check_collide(wall_sprites, None)
             if success:
                 self.__last_direction = direction  # type: ignore
                 return
 
-            arr: List[Tuple[float, Tuple[float, float], Tuple[float, float]]] = []
+            arr: List[Tuple[float, Direction, Direction]] = []
 
             for wall in collide:
                 arr.extend(direction_preset(self.rect, wall.rect))
@@ -349,7 +341,7 @@ class Hero(Sprite):
     """Hero"""
 
     nowframe: float
-    allframe: int
+    allframe: float
     images: List[str]
     role_name: str
     base_image: Surface
@@ -366,12 +358,12 @@ class Hero(Sprite):
     super_food: Optional[float]
 
     @classmethod
-    def create(cls, x, y, role_image_path: str, role_image_path2: str):
+    def create(cls, x: int, y: int):
         self = cls()
         self.nowframe = 0
         self.allframe = 1
-        self.images = [role_image_path, role_image_path2]
-        self.role_name = role_image_path.split("/")[-1].split(".")[0]
+        self.images = [HEROPATH, HEROPATH2]
+        self.role_name = HEROPATH.split("/")[-1].split(".")[0]
         self.base_image = pygame.image.load(self.images[0]).convert()
         self.image = self.base_image.copy()
         self.rect = self.image.get_rect()
