@@ -17,7 +17,7 @@ class _LevelData_no_food(BaseModel):
 class _LevelData(BaseModel):
     seq: int
     name: str
-    hero: Position
+    hero: List[Position]
     blinky: Position
     clyde: Position
     inky: Position
@@ -30,12 +30,12 @@ class _LevelData(BaseModel):
 class Level(object):
     _data: _LevelData
     name: str
-    maze: list[list[int]]
-    wall_sprites: "Group[Wall]"
-    gate_sprites: "Group[Wall]"
-    hero_sprites: "Group[Hero]"
-    ghost_sprites: "Group[Ghost]"
-    food_sprites: "Group[Food]"
+    maze: List[List[int]]
+    walls: "Group[Wall]"
+    gates: "Group[Wall]"
+    heroes: "Group[Hero]"
+    ghosts: "Group[Ghost]"
+    foods: "Group[Food]"
 
     def __init__(self, data: _LevelData):
         self._data = data
@@ -44,24 +44,25 @@ class Level(object):
     def setup_wall(self, wall_color: Color):
         self.maze = generate_maze(self._data.wall)
         walls = [Wall.create(*[*wall, wall_color]) for wall in self._data.wall]
-        self.wall_sprites = Group(walls)
-        return self.wall_sprites
+        self.walls = Group(walls)
+        return self.walls
 
     def setup_gate(self, gate_color: Color):
         gates = [Wall.create(*[*gate, gate_color]) for gate in self._data.gate]
-        self.gate_sprites = Group(gates)
-        return self.gate_sprites
+        self.gates = Group(gates)
+        return self.gates
 
     def setup_player(self):
-        self.hero_sprites = Group(Hero.create(*self._data.hero))
-        ghosts = [
+        self.heroes = Group()
+        for pos, frames in zip(self._data.hero, [HERO_FRAMES, HERO2_FRAMES]):
+            self.heroes.add(Hero.create(*pos, frames))
+        self.ghosts = Group([
             Ghost.create(*self._data.blinky, BlinkyPATH),
             Ghost.create(*self._data.clyde, ClydePATH),
             Ghost.create(*self._data.inky, InkyPATH),
             Ghost.create(*self._data.pinky, PinkyPATH),
-        ]
-        self.ghost_sprites = Group(*ghosts)
-        return self.hero_sprites, self.ghost_sprites
+        ])
+        return self.heroes, self.ghosts
 
     def setup_food(self, food_color: Color, bg_color: Color):
         foods = []  # type: List[Food]
@@ -83,9 +84,9 @@ class Level(object):
                 fcol = 30 * col + 2
                 frow = 30 * row + 2
                 food = Food.create(fcol, frow, 4, 4, food_color, bg_color)
-                if pygame.sprite.spritecollide(food, self.wall_sprites, False):
+                if pygame.sprite.spritecollide(food, self.walls, False):
                     continue
-                if pygame.sprite.spritecollide(food, self.hero_sprites, False):
+                if pygame.sprite.spritecollide(food, self.heroes, False):
                     continue
 
                 foods.append(food)
@@ -93,8 +94,8 @@ class Level(object):
         for food in random.sample(foods, round(len(foods) / 50)):
             food.set_super()
 
-        self.food_sprites = Group(foods)
-        return self.food_sprites
+        self.foods = Group(foods)
+        return self.foods
 
 
 _LEVEL_DATA = sorted(

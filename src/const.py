@@ -1,6 +1,7 @@
 import os
 import typing as _t
 import pathlib as _p
+import pygame
 
 BLACK = (0, 0, 0)
 WHITE = (255, 255, 255)
@@ -16,8 +17,10 @@ _cwd = os.getcwd()
 BGMPATH = os.path.join(_cwd, "assets/sounds/bg.mp3")
 ICONPATH = os.path.join(_cwd, "assets/images/icon.png")
 FONTPATH = os.path.join(_cwd, "assets/font/ALGER.TTF")
-HEROPATH = os.path.join(_cwd, "assets/images/pacman.png")
-HEROPATH2 = os.path.join(_cwd, "assets/images/pacman2.png")
+HEROPATH_1_1 = os.path.join(_cwd, "assets/images/pacman_1_1.png")
+HEROPATH_1_2 = os.path.join(_cwd, "assets/images/pacman_1_2.png")
+HEROPATH_2_1 = os.path.join(_cwd, "assets/images/pacman_2_1.png")
+HEROPATH_2_2 = os.path.join(_cwd, "assets/images/pacman_2_2.png")
 BlinkyPATH = os.path.join(_cwd, "assets/images/Blinky.png")
 ClydePATH = os.path.join(_cwd, "assets/images/Clyde.png")
 InkyPATH = os.path.join(_cwd, "assets/images/Inky.png")
@@ -30,3 +33,19 @@ Direction: _t.TypeAlias = _t.Tuple[float, float]
 Position: _t.TypeAlias = _t.Tuple[int, int]
 
 LEVELPATH = _p.Path("assets/levels")
+
+HERO_KEYMAP: _t.Dict[int, Direction] = {
+    pygame.K_LEFT: (-1, 0),
+    pygame.K_RIGHT: (1, 0),
+    pygame.K_UP: (0, -1),
+    pygame.K_DOWN: (0, 1),
+}
+HERO2_KEYMAP: _t.Dict[int, Direction] = {
+    pygame.K_a: (-1, 0),
+    pygame.K_d: (1, 0),
+    pygame.K_w: (0, -1),
+    pygame.K_s: (0, 1),
+}
+
+HERO_FRAMES: _t.List[str] = [HEROPATH_1_1, HEROPATH_1_2]
+HERO2_FRAMES: _t.List[str] = [HEROPATH_2_1, HEROPATH_2_2]

@@ -6,7 +6,7 @@ from typing import List
 import pygame
 
 from src.const import *
-from src.levels import LEVELS, Level
+from src.level import LEVELS, Level
 from src.sprites import Food
 
 
@@ -15,14 +15,15 @@ def startLevelGame(level: Level, screen: pygame.Surface, font: pygame.font.Font)
     SCORE = 0
     level_name_text = font.render(level.name, True, YELLOW)
 
-    wall_sprites = level.setup_wall(SKYBLUE)
-    gate_sprites = level.setup_gate(WHITE)
-    hero_sprites, ghost_sprites = level.setup_player()
-    food_sprites = level.setup_food(YELLOW, WHITE)
+    level.setup_wall(SKYBLUE)
+    level.setup_gate(WHITE)
+    level.setup_player()
+    level.setup_food(YELLOW, WHITE)
     is_win = False
 
     start_time = time.time()
-    start_ghost = list(ghost_sprites)
+    start_ghost = list(level.ghosts)
+    heros = list(level.heroes)
 
     def renderStatusBar():
         nonlocal SCORE
@@ -36,10 +37,9 @@ def startLevelGame(level: Level, screen: pygame.Surface, font: pygame.font.Font)
         screen.blit(score_text, (level_name_text.get_rect().right + 40, 610))
 
     while True:
-        if time.time() - start_time < 12:
-            idx = round((time.time() - start_time) / 3)
-            if idx < 4:
-                start_ghost[idx].is_move = True
+        if time.time() - start_time <= 13:
+            idx = min(round((time.time() - start_time) / 3), 3)
+            start_ghost[idx].is_move = True
 
         pygame.key.set_repeat(1, 1)
         for event in pygame.event.get():
@@ -47,62 +47,47 @@ def startLevelGame(level: Level, screen: pygame.Surface, font: pygame.font.Font)
                 pygame.quit()
                 sys.exit()
 
-            if event.type == pygame.KEYDOWN:
-                if event.key == pygame.K_LEFT:
-                    for hero in hero_sprites:
-                        hero.changeSpeed((-1, 0))
-                        hero.is_move = True
-                elif event.key == pygame.K_RIGHT:
-                    for hero in hero_sprites:
-                        hero.changeSpeed((1, 0))
-                        hero.is_move = True
-                elif event.key == pygame.K_UP:
-                    for hero in hero_sprites:
-                        hero.changeSpeed((0, -1))
-                        hero.is_move = True
-                elif event.key == pygame.K_DOWN:
-                    for hero in hero_sprites:
-                        hero.changeSpeed((0, 1))
-                        hero.is_move = True
+            elif event.type == pygame.KEYDOWN:
+                if event.key in list(HERO_KEYMAP):
+                    heros[0].changeSpeed(HERO_KEYMAP[event.key])
+                    heros[0].is_move = True
+                elif len(heros) > 1 and event.key in HERO2_KEYMAP:
+                    heros[1].changeSpeed(HERO2_KEYMAP[event.key])
+                    heros[1].is_move = True
 
-            if event.type == pygame.KEYUP:
-                if (
-                    (event.key == pygame.K_LEFT)
-                    or (event.key == pygame.K_RIGHT)
-                    or (event.key == pygame.K_UP)
-                    or (event.key == pygame.K_DOWN)
-                ):
-                    for hero in hero_sprites:
-                        hero.is_move = False
+            elif event.type == pygame.KEYUP:
+                if event.key in list(HERO_KEYMAP):
+                    heros[0].is_move = False
+                elif event.key in HERO2_KEYMAP and len(heros) > 1:
+                    heros[1].is_move = False
 
         # Reset screen
         screen.fill(BLACK)
-        wall_sprites.draw(screen)
-        gate_sprites.draw(screen)
+        level.walls.draw(screen)
+        level.gates.draw(screen)
 
         # Validate hero's movement
-        for hero in hero_sprites:
-            hero.check_collide(wall_sprites, gate_sprites)
-        hero_sprites.draw(screen)
+        for hero in level.heroes:
+            hero.check_collide(level.walls, level.gates)
+        level.heroes.draw(screen)
 
         # Check hero's collision with food
         food_eaten = []  # type: List[Food]
-        for hero in hero_sprites:
-            eaten = hero.check_food(food_sprites)
+        for hero in level.heroes:
+            eaten = hero.check_food(level.foods)
             food_eaten.extend(eaten)
 
         # Update food display
-        food_sprites.update()
-        food_sprites.draw(screen)
+        level.foods.update()
+        level.foods.draw(screen)
 
         # Update ghosts
-        for ghost in ghost_sprites:
-            for hero in hero_sprites:
-                ghost.update_position(hero, wall_sprites, level.maze)
-        ghost_sprites.draw(screen)
+        for ghost in level.ghosts:
+            ghost.update_position(level)
+        level.ghosts.draw(screen)
 
         # Check game status
-        if len(food_sprites) == 0:
+        if len(level.foods) == 0:
             is_win = True
             renderStatusBar()
             break
@@ -110,7 +95,7 @@ def startLevelGame(level: Level, screen: pygame.Surface, font: pygame.font.Font)
         # Check if hero crashed into ghosts
         do_break = False
         if collide := pygame.sprite.groupcollide(
-            hero_sprites, ghost_sprites, False, False
+            level.heroes, level.ghosts, False, False
         ):
             # collide: Dict[Hero, List[Ghost]]
             for hero, ghosts in collide.items():

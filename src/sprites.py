@@ -1,7 +1,7 @@
 import math
 import random
 import time
-from typing import Any, List, Optional, Set, Tuple
+from typing import Any, List, Optional, Set, Tuple, TYPE_CHECKING
 
 import pygame
 from pygame import Rect, Surface
@@ -9,6 +9,9 @@ from pygame.sprite import Group, Sprite
 
 from src.const import *
 from src.maze import Maze, MazePath, get_path
+
+if TYPE_CHECKING:
+    from src.level import Level
 
 CORNER_POS: Set[Position] = {
     (x * 30, y * 30) for x, y in {(1, 1), (1, 19), (19, 1), (19, 19)}
@@ -234,33 +237,57 @@ class Ghost(Sprite):
         return True, collide
 
     def update_destination(
-        self, maze: Maze, destination: Tuple[int, int], *, instant: bool = False
+        self,
+        maze: Maze,
+        destination: Tuple[int, int],
+        *,
+        instant: bool = False,
+        inplace: bool = True
     ):
         now = time.time()
+        dest = self.destination
+        route = self.route
         if now - self.__route_update >= self.__route_update_interval or instant:
-            self.__route_update = now
-            self.destination = destination
-            self.route = get_path(maze, self.rect.center, destination)
+            dest = destination
+            route = get_path(maze, self.rect.center, destination)
+            if inplace:
+                self.__route_update = now
+                self.destination = dest
+                self.route = route
 
-    def next_direction(self, hero: "Hero", maze: Maze) -> Direction:
-        self.set_worried(hero.super_food is not None)
+        return dest, route
+
+    def next_direction(self, level: "Level") -> Direction:
+        self.set_worried(Hero.super_food is not None)
         self.__worry_time = (
-            hero.super_food - time.time() if hero.super_food is not None else 0.0
+            Hero.super_food - time.time() if Hero.super_food is not None else 0.0
         )
 
         # Return to the birthplace coordinates after being eaten.
         if self.is_eaten():
-            self.update_destination(maze, self.__start_pos)
+            self.update_destination(level.maze, self.__start_pos)
         # Escape from the player when in an alarmed state.
         # TODO: Optimize the escape algorithm.
         elif self.is_worried():
-            arr = [(distance(hero.rect.center, i), i) for i in CORNER_POS]
+            arr = []
+            for hero in level.heroes:
+                arr.extend((distance(hero.rect.center, i), i) for i in CORNER_POS)
             arr.sort(key=lambda x: x[0], reverse=True)
-            self.update_destination(maze, arr[0][1])
+            self.update_destination(level.maze, arr[0][1])
         # Chase the player without any special conditions.
         # TODO: Execute different pursuit strategies based on the role_name.
         else:
-            self.update_destination(maze, hero.rect.center)
+            arr = []
+            for hero in level.heroes:
+                dest, path = self.update_destination(
+                    level.maze,
+                    hero.rect.center,
+                    instant=True,
+                    inplace=False,
+                )
+                arr.append((len(path), dest))
+            arr.sort()
+            self.update_destination(level.maze, arr[0][1])
 
         # Find the next target point in the path.
         x, y = [i // 30 for i in self.rect.center]
@@ -278,18 +305,18 @@ class Ghost(Sprite):
         next = self.route[1]
         return ((next.x - pos.x) / 2, (next.y - pos.y) / 2)
 
-    def update_position(self, hero: "Hero", wall_sprites: "Group[Wall]", maze: Maze):
+    def update_position(self, level: "Level"):
         if time.time() - self.__direction_update < 0.2:
             direction = self.__last_direction
         else:
-            direction = self.next_direction(hero, maze)
+            direction = self.next_direction(level)
             self.__direction_update = time.time()
 
         preset = 0
 
         while True:
             self.changeSpeed(direction)  # type: ignore
-            success, collide = self.check_collide(wall_sprites, None)
+            success, collide = self.check_collide(level.walls, None)
             if success:
                 self.__last_direction = direction  # type: ignore
                 return
@@ -357,12 +384,14 @@ class Hero(Sprite):
     super_food: Optional[float]
 
     @classmethod
-    def create(cls, x: int, y: int) -> "Hero":
+    def create(cls, x: int, y: int, images: List[str]) -> "Hero":
+        cls.super_food = None
+
         self = cls()
         self.nowframe = 0
         self.allframe = 1
-        self.images = [HEROPATH, HEROPATH2]
-        self.role_name = HEROPATH.split("/")[-1].split(".")[0]
+        self.images = images
+        self.role_name = self.images[0].split("/")[-1].split(".")[0]
         self.base_image = pygame.image.load(self.images[0]).convert()
         self.image = self.base_image.copy()
         self.rect = self.image.get_rect()
@@ -373,8 +402,11 @@ class Hero(Sprite):
         self.base_speed = (3, 3)
         self.speed = (0, 0)
         self.is_move = False
-        self.super_food = None
         return self
+
+    @classmethod
+    def set_super_food(cls, value: Optional[float] = None):
+        cls.super_food = value
 
     def changeSpeed(self, direction: Direction):
         if direction[0] < 0:
@@ -424,10 +456,10 @@ class Hero(Sprite):
         eaten = pygame.sprite.spritecollide(self, food_sprites, True)
         for food in eaten:
             if food.is_super:
-                self.super_food = now + food.super_duration
+                self.set_super_food(now + food.super_duration)
 
         # Check the expiration time of SuperFood.
         if self.super_food and now >= self.super_food:
-            self.super_food = None
+            self.set_super_food(None)
 
         return eaten
