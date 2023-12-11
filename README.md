@@ -30,7 +30,7 @@
     
     `assets/levels/`中目前仅创建第一关(`1.json`)，可以通过编写json文件创建新关卡，json文件参数含义见`src/level.py`注释。
 
-  - `src/sprites.py`
+  - `src/sprites/*.py`
 
     定义游戏中各实体，继承自 `pygame.sprites.Sprite` 类，包含 `Wall`, `Food`, `Ghost`, `Hero`，实现游戏内各实体的交互。
 

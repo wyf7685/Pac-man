@@ -1,4 +1,5 @@
 import random
+from typing import List, Tuple
 
 import pygame
 from pydantic import BaseModel
