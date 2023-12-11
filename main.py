@@ -15,10 +15,7 @@ def startLevelGame(level: Level, screen: pygame.Surface, font: pygame.font.Font)
     SCORE = 0
     level_name_text = font.render(level.name, True, YELLOW)
 
-    level.setup_wall(SKYBLUE)
-    level.setup_gate(WHITE)
-    level.setup_player()
-    level.setup_food(YELLOW, WHITE)
+    level.setup()
     is_win = False
 
     start_time = time.time()
@@ -63,13 +60,10 @@ def startLevelGame(level: Level, screen: pygame.Surface, font: pygame.font.Font)
 
         # Reset screen
         screen.fill(BLACK)
-        level.walls.draw(screen)
-        level.gates.draw(screen)
 
         # Validate hero's movement
         for hero in level.heroes:
             hero.check_collide(level.walls, level.gates)
-        level.heroes.draw(screen)
 
         # Check hero's collision with food
         food_eaten = []  # type: List[Food]
@@ -79,12 +73,13 @@ def startLevelGame(level: Level, screen: pygame.Surface, font: pygame.font.Font)
 
         # Update food display
         level.foods.update()
-        level.foods.draw(screen)
 
         # Update ghosts
         for ghost in level.ghosts:
             ghost.update_position(level)
-        level.ghosts.draw(screen)
+
+        # Draw all sprites
+        level.draw(screen)
 
         # Check game status
         if len(level.foods) == 0:
@@ -168,7 +163,7 @@ def initialize():
     pygame.init()
     icon_image = pygame.image.load(ICONPATH)
     pygame.display.set_icon(icon_image)
-    screen = pygame.display.set_mode([606, 636])
+    screen = pygame.display.set_mode((606, 636))
     pygame.display.set_caption("Pac-Man")
     return screen
 

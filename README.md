@@ -22,11 +22,13 @@
 
     定义常量，包含资源路径和颜色RGB元组。
 
-  - `src/levels.py`
+  - `src/level.py`
 
-    定义关卡数据，通过继承`Level`基类并实现对应方法来创建关卡。
+    定义关卡信息，`Level`类通过读取`assets/levels/`目录下的json文件创建关卡。
     
-    `LEVELS` 数组保存各关卡类对象，代码中目前仅创建第一关，可继续继承`Level`类实现多关卡（也许有一天会做成外置数据）。
+    `LEVELS` 数组保存各关卡对象。
+    
+    `assets/levels/`中目前仅创建第一关(`1.json`)，可以通过编写json文件创建新关卡，json文件参数含义见`src/level.py`注释。
 
   - `src/sprites.py`
 
