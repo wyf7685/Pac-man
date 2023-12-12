@@ -129,11 +129,7 @@ def pause(screen: pygame.Surface):
                     return
 
 
-def showText(
-    screen: pygame.Surface,
-    is_win: bool,
-    is_end: bool = False,
-):
+def showText(screen: pygame.Surface, is_win: bool, is_end: bool):
     clock = pygame.time.Clock()
     font = pygame.font.Font(FONTPATH, 24)
     msg = "Congratulations, you won!" if is_win else "Game Over!"
