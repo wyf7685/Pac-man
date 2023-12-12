@@ -25,7 +25,7 @@ jobs:
         python -m poetry install --with=dev --no-root
     - name: Build binary
       run: |
-        python -m poetry run pyinstaller -F -c --clean --name Pac-man -i assets/images/icon.png --noupx main.py
+        python -m poetry run pyinstaller -F -c --clean --name Pac-man -i assets/images/icon.ico --noupx main.py
     - name: Copy assets
       run: |
         python -c "import shutil;shutil.copytree('assets','dist/assets')"
