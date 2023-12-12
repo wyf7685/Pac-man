@@ -21,17 +21,19 @@ def startLevelGame(level: Level, screen: pygame.Surface, font: pygame.font.Font)
     start_time = time.time()
     start_ghost = list(level.ghosts)
     heros = list(level.heroes)
+    food_eaten = []  # type: List[Food]
 
     def renderStatusBar():
         nonlocal SCORE
 
         # Render level name
-        screen.blit(level_name_text, (10, 610))
+        rect = screen.blit(level_name_text, (10, 610))
 
         # Update score and render
         SCORE += len(food_eaten)
+        food_eaten.clear()
         score_text = font.render(f"Score: {SCORE}", True, RED)
-        screen.blit(score_text, (level_name_text.get_rect().right + 40, 610))
+        screen.blit(score_text, (rect.right + 40, 610))
 
     while True:
         if time.time() - start_time <= 13:
@@ -66,12 +68,11 @@ def startLevelGame(level: Level, screen: pygame.Surface, font: pygame.font.Font)
             hero.check_collide(level.walls, level.gates)
 
         # Check hero's collision with food
-        food_eaten = []  # type: List[Food]
         for hero in level.heroes:
             eaten = hero.check_food(level.foods)
             food_eaten.extend(eaten)
 
-        # Update food display
+        # Update food
         level.foods.update()
 
         # Update ghosts
@@ -114,21 +115,22 @@ def startLevelGame(level: Level, screen: pygame.Surface, font: pygame.font.Font)
 
         pygame.display.flip()
         clock.tick(60)
+
     return is_win
 
 
 def showText(
     screen: pygame.Surface,
     font: pygame.font.Font,
-    is_clearance: bool,
+    is_win: bool,
     flag: bool = False,
 ):
     clock = pygame.time.Clock()
-    msg = "Game Over!" if not is_clearance else "Congratulations, you won!"
+    msg = "Congratulations, you won!" if is_win else "Game Over!"
     positions = (
-        [[235, 233], [65, 303], [170, 333]]
-        if not is_clearance
-        else [[145, 233], [65, 303], [170, 333]]
+        [[145, 233], [65, 303], [170, 333]]
+        if is_win
+        else [[235, 233], [65, 303], [170, 333]]
     )
     surface = pygame.Surface((400, 200))
     surface.set_alpha(10)
@@ -146,10 +148,10 @@ def showText(
                 sys.exit()
             if event.type == pygame.KEYDOWN:
                 if event.key == pygame.K_RETURN:
-                    if is_clearance and not flag:
+                    if is_win and not flag:
                         return
                     else:
-                        main(initialize())
+                        main()
                 elif event.key == pygame.K_ESCAPE:
                     pygame.quit()
                     sys.exit()
@@ -159,16 +161,11 @@ def showText(
         clock.tick(10)
 
 
-def initialize():
+def main():
     pygame.init()
-    icon_image = pygame.image.load(ICONPATH)
-    pygame.display.set_icon(icon_image)
+    pygame.display.set_icon(pygame.image.load(ICONPATH))
     screen = pygame.display.set_mode((606, 636))
     pygame.display.set_caption("Pac-Man")
-    return screen
-
-
-def main(screen: pygame.Surface):
     pygame.mixer.init()
     pygame.mixer.music.load(BGMPATH)
     pygame.mixer.music.play(-1, 0.0)
@@ -182,4 +179,4 @@ def main(screen: pygame.Surface):
 
 
 if __name__ == "__main__":
-    main(initialize())
+    main()

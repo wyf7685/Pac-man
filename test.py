@@ -25,7 +25,7 @@ while True:
 
     screen.fill(BLACK)
     level.draw(screen)
-    screen.blit(level_name_text, (10, 610))
-    screen.blit(score_text, (level_name_text.get_rect().right + 40, 610))
+    rect = screen.blit(level_name_text, (10, 610))
+    screen.blit(score_text, (rect.right + 40, 610))
     pygame.display.flip()
 

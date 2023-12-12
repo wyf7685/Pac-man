@@ -1,5 +1,5 @@
 import time
-from typing import TYPE_CHECKING, List, Optional, Tuple
+from typing import TYPE_CHECKING, List, Optional, Tuple, ClassVar
 
 import pygame
 from pygame import Rect, Surface
@@ -17,8 +17,7 @@ class Hero(Sprite):
 
     nowframe: float
     allframe: float
-    images: List[str]
-    role_name: str
+    images: List[Surface]
     base_image: Surface
     image: Surface
     rect: Rect
@@ -28,20 +27,19 @@ class Hero(Sprite):
     speed: Tuple[int, int]
     is_move: bool
 
-    super_food: Optional[float]
+    super_food: ClassVar[Optional[float]] = None
 
     @classmethod
-    def create(cls, x: int, y: int, images: List[str]) -> "Hero":
+    def create(cls, x: int, y: int, image_path: List[str]) -> "Hero":
         cls.super_food = None
 
         self = cls()
         self.nowframe = 0
         self.allframe = 1
-        self.images = images
-        self.role_name = self.images[0].split("/")[-1].split(".")[0]
-        self.base_image = pygame.image.load(self.images[0]).convert()
+        self.images = [IMAGES[p] for p in image_path]
+        self.base_image = self.images[0].copy()
         self.image = self.base_image.copy()
-        self.rect = self.image.get_rect()
+        self.rect = self.image.get_rect().copy()
         self.rect.left = x
         self.rect.top = y
         self.pre_x = x
@@ -70,31 +68,33 @@ class Hero(Sprite):
                 round(direction[0] * self.base_speed[0]),
                 round(direction[1] * self.base_speed[1]),
             )
+
         return self.speed
 
-    def check_collide(
-        self, wall_sprites: "Group[Wall]", gate_sprites: "Group[Wall]"
-    ) -> bool:
+    def check_collide(self, walls: "Group[Wall]", gates: "Group[Wall]") -> bool:
         if self.nowframe < self.allframe:
             self.nowframe += 0.05
         else:
             self.nowframe = 0
-        self.base_image = pygame.image.load(self.images[round(self.nowframe)]).convert()
+        self.base_image = self.images[round(self.nowframe)].copy()
         self.changeSpeed((0, 0))
         if not self.is_move:
             return False
+
         x_pre = self.rect.left
         y_pre = self.rect.top
         self.rect.left += self.speed[0]
         self.rect.top += self.speed[1]
-        collide = pygame.sprite.spritecollide(self, wall_sprites, False)
-        if gate_sprites is not None:
-            if not collide:
-                collide = pygame.sprite.spritecollide(self, gate_sprites, False)
+
+        collide = pygame.sprite.spritecollide(self, walls, False)
+        if gates:
+            collide.extend(pygame.sprite.spritecollide(self, gates, False))
+
         if collide:
             self.rect.left = x_pre
             self.rect.top = y_pre
             return False
+
         return True
 
     def check_food(self, food_sprites: "Group[Food]") -> List["Food"]:

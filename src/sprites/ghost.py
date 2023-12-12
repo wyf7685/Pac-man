@@ -1,7 +1,7 @@
 import math
 import random
 import time
-from typing import TYPE_CHECKING, Any, List, Optional, Set, Tuple
+from typing import TYPE_CHECKING, List, Optional, Set, Tuple
 
 import pygame
 from pygame import Rect, Surface
@@ -83,7 +83,7 @@ class Ghost(Sprite):
     def create(cls, x: int, y: int, image_path: str):
         self = cls()
         self.role_name = image_path.split("/")[-1].split(".")[0]
-        self.base_image = pygame.image.load(image_path).convert()
+        self.base_image = IMAGES[image_path].copy()
         self.image = self.base_image.copy()
         self.rect = self.image.get_rect()
         self.rect.left = x
@@ -220,8 +220,8 @@ class Ghost(Sprite):
         if len(self.route) == 1:
             return self.randomDirection()
 
-        next = self.route[1]
-        return ((next.x - pos.x) / 2, (next.y - pos.y) / 2)
+        n = self.route[1]
+        return ((n.x - pos.x) / 2, (n.y - pos.y) / 2)
 
     def update_position(self, level: "Level"):
         if time.time() - self.__direction_update < 0.2:
@@ -267,17 +267,11 @@ class Ghost(Sprite):
         return self.__eaten
 
     def update_image(self) -> None:
-        t = round(min(self.__worry_time, 3.0) * 10 // 4)
+        img = self.__image_path
+        if round(min(self.__worry_time, 3.0) * 10 // 4) % 2:
+            if self.is_eaten():
+                img = EatenPATH
+            elif self.is_worried():
+                img = GreyPATH
 
-        if self.is_eaten():
-            img_path = self.__image_path
-            if t % 2 == 1:
-                img_path = EatenPATH
-        elif self.is_worried():
-            img_path = GreyPATH
-            if t % 2 == 0:
-                img_path = self.__image_path
-        else:
-            img_path = self.__image_path
-
-        self.base_image = pygame.image.load(img_path).convert()
+        self.base_image = IMAGES[img].copy()

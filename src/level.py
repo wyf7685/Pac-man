@@ -74,6 +74,7 @@ class Level(object):
         self.name = data.name
 
     def setup(self, wall_color: Color = SKYBLUE, gate_color: Color = WHITE):
+        load_images()
         self.setup_wall(wall_color)
         self.setup_gate(gate_color)
         self.setup_player()

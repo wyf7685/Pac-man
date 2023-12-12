@@ -1,11 +1,11 @@
 from typing import Any, Tuple
+from typing_extensions import override
 
 import pygame
 from pygame import Rect, Surface
 from pygame.sprite import Sprite
 
-from src.const import *
-
+from src.const import Color
 
 
 class Food(Sprite):
@@ -38,7 +38,7 @@ class Food(Sprite):
 
         self.draw()
         return self
-    
+
     def draw(self):
         x = self.base_x
         y = self.base_y
@@ -64,6 +64,7 @@ class Food(Sprite):
         self.is_super = True
         self.draw()
 
+    @override
     def update(self, *args: Any, **kwargs: Any) -> None:
         self.__size += 0.03
         if self.__size >= 3:

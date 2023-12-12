@@ -1,7 +1,7 @@
 from pygame import Rect, Surface
 from pygame.sprite import Sprite
 
-from src.const import *
+from src.const import Color
 
 
 class Wall(Sprite):
