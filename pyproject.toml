@@ -16,6 +16,10 @@ name = "tuna"
 url = "https://pypi.tuna.tsinghua.edu.cn/simple"
 priority = "default"
 
+
+[tool.poetry.group.dev.dependencies]
+pillow = "^10.1.0"
+
 [build-system]
 requires = ["poetry-core"]
 build-backend = "poetry.core.masonry.api"
