@@ -2,19 +2,19 @@ import os
 import typing as _t
 import pathlib as _p
 import pygame
+from pygame import Color
 
-Color: _t.TypeAlias = _t.Tuple[int, int, int]
 Direction: _t.TypeAlias = _t.Tuple[float, float]
 Position: _t.TypeAlias = _t.Tuple[int, int]
 
-BLACK = (0, 0, 0)
-WHITE = (255, 255, 255)
-BLUE = (0, 0, 255)
-GREEN = (0, 255, 0)
-RED = (255, 0, 0)
-YELLOW = (255, 255, 0)
-PURPLE = (255, 0, 255)
-SKYBLUE = (0, 191, 255)
+BLACK = Color(0, 0, 0)
+WHITE = Color(255, 255, 255)
+BLUE = Color(0, 0, 255)
+GREEN = Color(0, 255, 0)
+RED = Color(255, 0, 0)
+YELLOW = Color(255, 255, 0)
+PURPLE = Color(255, 0, 255)
+SKYBLUE = Color(0, 191, 255)
 
 _cwd = os.getcwd()
 

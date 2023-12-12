@@ -1,4 +1,4 @@
-from typing import Any, Tuple
+from typing import Any
 from typing_extensions import override
 
 import pygame
@@ -15,8 +15,8 @@ class Food(Sprite):
     base_y: int
     base_width: int
     base_height: int
-    color: Tuple[int, int, int]
-    bg_color: Tuple[int, int, int]
+    color: Color
+    bg_color: Color
 
     image: Surface
     rect: Rect

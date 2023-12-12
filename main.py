@@ -136,7 +136,7 @@ def showText(screen: pygame.Surface, is_win: bool, is_end: bool):
     positions = [(145, 233) if is_win else (235, 233), (65, 303), (170, 333)]
     surface = pygame.Surface((400, 200))
     surface.set_alpha(10)
-    surface.fill((128, 128, 128))
+    surface.fill(Color(128, 128, 128))
     screen.blit(surface, (100, 200))
     texts = [
         font.render(msg, True, WHITE),

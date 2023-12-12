@@ -7,7 +7,7 @@ from pygame.sprite import Group
 
 from src.const import *
 from src.maze import generate_maze
-from src.sprites import *
+from src.sprites import Food, Ghost, Hero, Wall
 
 
 class _LevelData_no_food(BaseModel):
