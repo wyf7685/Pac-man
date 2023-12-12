@@ -1,0 +1,35 @@
+name: build
+
+on:
+  push:
+    branches: [ "main" ]
+  pull_request:
+    branches: [ "main" ]
+
+permissions:
+  contents: read
+
+jobs:
+  build:
+    runs-on: windows-latest
+    steps:
+    - uses: actions/checkout@v4
+    - name: Set up Python 3.11
+      uses: actions/setup-python@v3
+      with:
+        python-version: "3.11"
+    - name: Install dependencies
+      run: |
+        python -m pip install --upgrade pip
+        python -m pip install poetry pyinstaller
+        python -m poetry install --no-root
+    - name: Build binary
+      run: |
+        python -m poetry run pyinstaller -F -c --clean --name Pac-man -i assets/images/icon.png --noupx main.py
+    - name: Copy assets
+      run: |
+        python -c "import shutil;shutil.copytree('assets','dist/assets')"
+    - uses: actions/upload-artifact@v3
+      with:
+        name: Pac-man
+        path: dist/
