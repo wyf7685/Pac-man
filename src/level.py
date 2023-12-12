@@ -13,9 +13,10 @@ from src.sprites import *
 class _LevelData_no_food(BaseModel):
     """
     指定禁止生成食物的区域
-    
+
     以下范围均为闭区间
     """
+
     row: Tuple[int, int]
     """行范围"""
     col: Tuple[int, int]

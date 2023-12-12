@@ -56,7 +56,7 @@ IMAGES: _t.Dict[str, pygame.Surface] = {}
 def load_images():
     """
     从`./assets/`读取图片并写入内存
-    
+
     避免运行时反复读取
     """
     IMAGES.update(

@@ -103,7 +103,6 @@ class Ghost(Sprite):
         self.__start_pos = (x, y)
         self.__worry_time = -1
         self.set_worried(False)
-
         self.set_eaten(False)
 
         self.__direction_update = 0.0
