@@ -57,27 +57,16 @@ def startLevelGame(level: Level, screen: pygame.Surface, font: pygame.font.Font)
             elif event.type == pygame.KEYUP:
                 if event.key in list(HERO_KEYMAP):
                     heros[0].is_move = False
-                elif event.key in HERO2_KEYMAP and len(heros) > 1:
+                elif len(heros) > 1 and event.key in HERO2_KEYMAP:
                     heros[1].is_move = False
 
         # Reset screen
         screen.fill(BLACK)
 
-        # Validate hero's movement
-        for hero in level.heroes:
-            hero.check_collide(level.walls, level.gates)
-
-        # Check hero's collision with food
-        for hero in level.heroes:
-            eaten = hero.check_food(level.foods)
-            food_eaten.extend(eaten)
-
-        # Update food
+        # Update sprites
+        level.heroes.update(level, food_eaten)
         level.foods.update()
-
-        # Update ghosts
-        for ghost in level.ghosts:
-            ghost.update_position(level)
+        level.ghosts.update(level)
 
         # Draw all sprites
         level.draw(screen)
@@ -94,7 +83,7 @@ def startLevelGame(level: Level, screen: pygame.Surface, font: pygame.font.Font)
             level.heroes, level.ghosts, False, False
         ):
             # collide: Dict[Hero, List[Ghost]]
-            for hero, ghosts in collide.items():
+            for ghosts in collide.values():
                 for ghost in ghosts:
                     # If ghost is worried, check is_eaten
                     if ghost.is_worried():
@@ -123,15 +112,11 @@ def showText(
     screen: pygame.Surface,
     font: pygame.font.Font,
     is_win: bool,
-    flag: bool = False,
+    is_end: bool = False,
 ):
     clock = pygame.time.Clock()
     msg = "Congratulations, you won!" if is_win else "Game Over!"
-    positions = (
-        [[145, 233], [65, 303], [170, 333]]
-        if is_win
-        else [[235, 233], [65, 303], [170, 333]]
-    )
+    positions = ((145, 233) if is_win else (235, 233), (65, 303), (170, 333))
     surface = pygame.Surface((400, 200))
     surface.set_alpha(10)
     surface.fill((128, 128, 128))
@@ -148,7 +133,7 @@ def showText(
                 sys.exit()
             if event.type == pygame.KEYDOWN:
                 if event.key == pygame.K_RETURN:
-                    if is_win and not flag:
+                    if is_win and not is_end:
                         return
                     else:
                         main()

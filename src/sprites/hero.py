@@ -1,5 +1,6 @@
 import time
-from typing import TYPE_CHECKING, List, Optional, Tuple, ClassVar
+from typing import TYPE_CHECKING, ClassVar, List, Optional, Tuple
+from typing_extensions import override
 
 import pygame
 from pygame import Rect, Surface
@@ -8,6 +9,8 @@ from pygame.sprite import Group, Sprite
 from src.const import *
 
 if TYPE_CHECKING:
+    from src.level import Level
+
     from .food import Food
     from .wall import Wall
 
@@ -97,10 +100,10 @@ class Hero(Sprite):
 
         return True
 
-    def check_food(self, food_sprites: "Group[Food]") -> List["Food"]:
+    def check_food(self, foods: "Group[Food]") -> List["Food"]:
         now = time.time()
 
-        eaten = pygame.sprite.spritecollide(self, food_sprites, True)
+        eaten = pygame.sprite.spritecollide(self, foods, True)
         for food in eaten:
             if food.is_super:
                 self.set_super_food(now + food.super_duration)
@@ -110,3 +113,8 @@ class Hero(Sprite):
             self.set_super_food(None)
 
         return eaten
+    
+    @override
+    def update(self, level: "Level", eaten: List["Food"], *args, **kwargs) -> None:
+        self.check_collide(level.walls, level.gates)
+        eaten.extend(self.check_food(level.foods))

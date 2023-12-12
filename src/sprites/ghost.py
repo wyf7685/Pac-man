@@ -2,6 +2,7 @@ import math
 import random
 import time
 from typing import TYPE_CHECKING, List, Optional, Set, Tuple
+from typing_extensions import override
 
 import pygame
 from pygame import Rect, Surface
@@ -223,7 +224,8 @@ class Ghost(Sprite):
         n = self.route[1]
         return ((n.x - pos.x) / 2, (n.y - pos.y) / 2)
 
-    def update_position(self, level: "Level"):
+    @override
+    def update(self, level: "Level", *args, **kwargs) -> None:
         if time.time() - self.__direction_update < 0.2:
             direction = self.__last_direction
         else:
