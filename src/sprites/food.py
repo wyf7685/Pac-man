@@ -1,4 +1,4 @@
-from typing import Any
+from typing import Any, ClassVar
 
 import pygame
 from pygame import Rect, Surface
@@ -22,7 +22,7 @@ class Food(Sprite):
     rect: Rect
     is_super: bool = False
     super_duration: float = 10.0
-    __size: float = 3
+    __size: ClassVar[float] = 3
 
     @classmethod
     def create(cls, x: int, y: int, color: Color, bg_color: Color):
@@ -62,10 +62,12 @@ class Food(Sprite):
         self.is_super = True
         self.draw()
 
+    @classmethod
+    def update_size(cls):
+        cls.__size += 0.03
+        if cls.__size >= 3:
+            cls.__size = 2.0
+
     @override
     def update(self, *args: Any, **kwargs: Any) -> None:
-        self.__size += 0.03
-        if self.__size >= 3:
-            self.__size = 2.0
-
         self.draw()

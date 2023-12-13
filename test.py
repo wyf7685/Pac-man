@@ -12,20 +12,22 @@ pygame.display.set_caption("Pac-Man - DEBUG")
 pygame.font.init()
 font = pygame.font.Font(FONTPATH, 18)
 
-level = LEVELS.pop()
+level = LEVELS[-1]
 level.setup()
-level_name_text = font.render(level.name, True, YELLOW)
-score_text = font.render("Score: 0", True, RED)
+pos = (0, 0)
 
 while True:
     for event in pygame.event.get():
         if event.type == pygame.QUIT:
             pygame.quit()
             sys.exit(0)
+        elif event.type == pygame.MOUSEBUTTONDOWN:
+            pos = pygame.mouse.get_pos()
+            pos = pos[0] // 30, pos[1] // 30
 
-    screen.fill(BLACK)
     level.draw(screen)
-    rect = screen.blit(level_name_text, (10, 610))
-    screen.blit(score_text, (rect.right + 40, 610))
-    pygame.display.flip()
+    text = font.render(f"Pos: {pos}", True, GREEN)
+    w = text.get_rect().width
+    screen.blit(text, (600 - w, 610))
 
+    pygame.display.flip()

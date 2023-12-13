@@ -102,6 +102,7 @@ class Level(object):
         eaten = []
         self.heroes.update(self, eaten)
         self.score += len(eaten)
+        Food.update_size()
         self.foods.update()
         self.ghosts.update(self)
         self.draw(screen)
