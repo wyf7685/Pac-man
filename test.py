@@ -22,9 +22,11 @@ level = Level(data)
 level.setup()
 pos = (0, 0)
 mode = 0
+undo = []
 
 
-def save_level():
+def reload_level():
+    level.setup()
     data_fp.write_text(data.model_dump_json(indent=2))
 
 
@@ -47,12 +49,23 @@ while True:
                 case 3:
                     data.no_food.append(t)
             if mode:
+                undo.append(mode)
                 mode = 0
-                level.setup()
-                save_level()
+                reload_level()
         elif event.type == pygame.KEYDOWN:
             if event.key in MODE_KEYMAP:
                 mode = MODE_KEYMAP[event.key]
+            elif event.key == pygame.K_z:
+                if not undo:
+                    continue
+                match undo.pop():
+                    case 1:
+                        data.wall.pop()
+                    case 2:
+                        data.gate.pop()
+                    case 3:
+                        data.no_food.pop()
+                reload_level()
 
     level.draw(screen)
     text = font.render(f"Pos: {pos}", True, GREEN)
