@@ -1,6 +1,7 @@
 import sys
 
 import pygame
+import pyperclip
 
 from src.const import *
 from src.level import LEVELS
@@ -24,6 +25,7 @@ while True:
         elif event.type == pygame.MOUSEBUTTONDOWN:
             pos = pygame.mouse.get_pos()
             pos = pos[0] // 30, pos[1] // 30
+            pyperclip.copy(f"{pos[0]}, {pos[1]}")
 
     level.draw(screen)
     text = font.render(f"Pos: {pos}", True, GREEN)
