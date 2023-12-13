@@ -10,19 +10,6 @@ from src.maze import generate_maze
 from src.sprites import Food, Gate, Ghost, Hero, Wall
 
 
-class _LevelData_no_food(BaseModel):
-    """
-    指定禁止生成食物的区域
-
-    以下范围均为闭区间
-    """
-
-    row: Tuple[int, int]
-    """行范围"""
-    col: Tuple[int, int]
-    """列范围"""
-
-
 class _LevelData(BaseModel):
     seq: int
     """关卡序号，即关卡在游戏内出现的顺序"""
@@ -40,11 +27,11 @@ class _LevelData(BaseModel):
     """Pinky初始位置"""
     super_food: float
     """能量豆出现概率"""
-    no_food: List[_LevelData_no_food]
+    no_food: List[Tuple[int, int, int, int]]
     """
     禁止生成食物的区域
     
-    [{"row": [7, 9], "col": [10, 12]}]
+    (x1, y1, x2, y2)
     """
     gate: List[Tuple[int, int, int, int]]
     """
@@ -58,6 +45,14 @@ class _LevelData(BaseModel):
 
     (x1, y1, x2, y2)
     """
+
+    def validate_food(self, x: int, y: int) -> bool:
+        for x1, y1, x2, y2 in self.no_food:
+            x1, x2 = min(x1, x2), max(x1, x2)
+            y1, y2 = min(y1, y2), max(y1, y2)
+            if x1 <= x <= x2 and y1 <= y <= y2:
+                return False
+        return True
 
 
 class Level(object):
@@ -137,18 +132,9 @@ class Level(object):
     def setup_food(self, food_color: Color, bg_color: Color):
         foods = []  # type: List[Food]
 
-        def invalid(row: int, col: int):
-            for item in self._data.no_food:
-                if (
-                    item.row[0] <= row <= item.row[1]
-                    and item.col[0] <= col <= item.col[1]
-                ):
-                    return True
-            return False
-
         for col in range(len(self.maze)):
             for row in range(len(self.maze[col])):
-                if self.maze[col][row] == 0 or invalid(row, col):
+                if self.maze[col][row] == 0 or not self._data.validate_food(col, row):
                     continue
 
                 food = Food.create(col, row, food_color, bg_color)
