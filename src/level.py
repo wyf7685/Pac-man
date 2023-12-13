@@ -2,7 +2,7 @@ import random
 from typing import List, Tuple
 
 import pygame
-from pydantic import BaseModel
+from pydantic import BaseModel, Field
 from pygame.sprite import Group
 
 from src.const import *
@@ -10,36 +10,36 @@ from src.maze import generate_maze
 from src.sprites import Food, Gate, Ghost, Hero, Wall
 
 
-class _LevelData(BaseModel):
-    seq: int
+class LevelData(BaseModel):
+    seq: int = Field(default=0)
     """关卡序号，即关卡在游戏内出现的顺序"""
-    name: str
+    name: str = Field(default="DEV")
     """关卡名，显示在游戏界面下方状态栏"""
-    hero: List[Position]
+    hero: List[Position] = Field(default_factory=lambda: [(10, 10)])
     """玩家初始位置，可以是1-2个坐标"""
-    blinky: Position
+    blinky: Position = Field(default_factory=lambda: (10, 11))
     """Blinky初始位置"""
-    clyde: Position
+    clyde: Position = Field(default_factory=lambda: (10, 12))
     """Clyde初始位置"""
-    inky: Position
+    inky: Position = Field(default_factory=lambda: (10, 13))
     """Inky初始位置"""
-    pinky: Position
+    pinky: Position = Field(default_factory=lambda: (10, 14))
     """Pinky初始位置"""
-    super_food: float
+    super_food: float = Field(default=0.02)
     """能量豆出现概率"""
-    no_food: List[Tuple[int, int, int, int]]
+    no_food: List[Tuple[int, int, int, int]] = Field(default_factory=list)
     """
     禁止生成食物的区域
     
     (x1, y1, x2, y2)
     """
-    gate: List[Tuple[int, int, int, int]]
+    gate: List[Tuple[int, int, int, int]] = Field(default_factory=list)
     """
     门坐标
 
     (x1, y1, x2, y2)
     """
-    wall: List[Tuple[int, int, int, int]]
+    wall: List[Tuple[int, int, int, int]] = Field(default_factory=list)
     """
     墙坐标
 
@@ -57,7 +57,7 @@ class _LevelData(BaseModel):
 
 class Level(object):
     _font: pygame.font.Font
-    _data: _LevelData
+    _data: LevelData
     name: str
     score: int
     maze: List[List[int]]
@@ -67,7 +67,7 @@ class Level(object):
     ghosts: "Group[Ghost]"
     foods: "Group[Food]"
 
-    def __init__(self, data: _LevelData):
+    def __init__(self, data: LevelData):
         self._data = data
         self.name = self._data.name
 
@@ -91,7 +91,7 @@ class Level(object):
         level_name = self._font.render(self.name, True, YELLOW)
         rect = screen.blit(level_name, (10, 610))
         score = self._font.render(f"Score: {self.score}", True, RED)
-        screen.blit(score, (rect.right + 40, 610))
+        screen.blit(score, (rect.right + 30, 610))
 
     def update(self, screen: pygame.Surface):
         eaten = []
@@ -156,7 +156,7 @@ LEVELS = [
     Level(data)
     for data in sorted(
         [
-            _LevelData.model_validate_json(p.read_text(encoding="utf-8"))
+            LevelData.model_validate_json(p.read_text(encoding="utf-8"))
             for p in LEVELPATH.iterdir()
             if p.name.endswith(".json")
         ],
