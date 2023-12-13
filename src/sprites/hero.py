@@ -35,6 +35,8 @@ class Hero(Sprite):
     @classmethod
     def create(cls, x: int, y: int, image_path: List[str]) -> "Hero":
         cls.super_food = None
+        x = x * 30 + 3
+        y = y * 30 + 3
 
         self = cls()
         self.nowframe = 0
@@ -43,8 +45,8 @@ class Hero(Sprite):
         self.base_image = self.images[0].copy()
         self.image = self.base_image.copy()
         self.rect = self.image.get_rect().copy()
-        self.rect.left = x
-        self.rect.top = y
+        self.rect.centerx = x
+        self.rect.centery = y
         self.pre_x = x
         self.pre_y = y
         self.base_speed = (3, 3)
@@ -84,18 +86,18 @@ class Hero(Sprite):
         if not self.is_move:
             return False
 
-        x_pre = self.rect.left
-        y_pre = self.rect.top
-        self.rect.left += self.speed[0]
-        self.rect.top += self.speed[1]
+        x_pre = self.rect.centerx
+        y_pre = self.rect.centery
+        self.rect.centerx += self.speed[0]
+        self.rect.centery += self.speed[1]
 
         collide = pygame.sprite.spritecollide(self, walls, False)
         if gates:
             collide.extend(pygame.sprite.spritecollide(self, gates, False))
 
         if collide:
-            self.rect.left = x_pre
-            self.rect.top = y_pre
+            self.rect.centerx = x_pre
+            self.rect.centery = y_pre
             return False
 
         return True
@@ -113,7 +115,7 @@ class Hero(Sprite):
             self.set_super_food(None)
 
         return eaten
-    
+
     @override
     def update(self, level: "Level", eaten: List["Food"], *args, **kwargs) -> None:
         self.check_collide(level.walls, level.gates)

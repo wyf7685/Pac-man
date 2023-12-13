@@ -82,13 +82,16 @@ class Ghost(Sprite):
 
     @classmethod
     def create(cls, x: int, y: int, image_path: str):
+        x = x * 30 + 3
+        y = y * 30 + 3
+
         self = cls()
         self.role_name = image_path.split("/")[-1].split(".")[0]
         self.base_image = IMAGES[image_path].copy()
         self.image = self.base_image.copy()
         self.rect = self.image.get_rect()
-        self.rect.left = x
-        self.rect.top = y
+        self.rect.centerx = x
+        self.rect.centery = y
         self.pre_x = x
         self.pre_y = y
         self.basic_speed = (3.5, 3.5)
@@ -138,18 +141,18 @@ class Ghost(Sprite):
         wall_sprites: "Group[Wall]",
         gate_sprites: Optional["Group[Wall]"],
     ) -> tuple[bool, List["Wall"]]:
-        x_pre = self.rect.left
-        y_pre = self.rect.top
-        self.rect.left += self.speed[0]
-        self.rect.top += self.speed[1]
+        x_pre = self.rect.centerx
+        y_pre = self.rect.centery
+        self.rect.centerx += self.speed[0]
+        self.rect.centery+= self.speed[1]
         collide = pygame.sprite.spritecollide(self, wall_sprites, False)
 
         if gate_sprites is not None and not collide:
             collide = pygame.sprite.spritecollide(self, gate_sprites, False)
 
         if collide:
-            self.rect.left = x_pre
-            self.rect.top = y_pre
+            self.rect.centerx = x_pre
+            self.rect.centery= y_pre
             return False, collide
 
         return True, collide
