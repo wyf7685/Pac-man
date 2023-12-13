@@ -1,7 +1,6 @@
 import sys
 
 import pygame
-import pyperclip
 
 from src.const import *
 from src.level import Level, LevelData
@@ -52,7 +51,6 @@ while True:
                 prev = pos
                 pos = pygame.mouse.get_pos()
                 pos = pos[0] // 30, pos[1] // 30
-                pyperclip.copy(f"{pos[0]}, {pos[1]}")
                 if mode:
                     container(mode).append((prev[0], prev[1], pos[0], pos[1]))
                     undo.append(mode)
