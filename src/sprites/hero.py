@@ -1,10 +1,10 @@
 import time
 from typing import TYPE_CHECKING, ClassVar, List, Optional, Tuple
-from typing_extensions import override
 
 import pygame
 from pygame import Rect, Surface
 from pygame.sprite import Group, Sprite
+from typing_extensions import override
 
 from src.const import *
 

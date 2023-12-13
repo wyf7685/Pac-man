@@ -1,9 +1,9 @@
 from typing import Any
-from typing_extensions import override
 
 import pygame
 from pygame import Rect, Surface
 from pygame.sprite import Sprite
+from typing_extensions import override
 
 from src.const import Color
 
@@ -25,14 +25,12 @@ class Food(Sprite):
     __size: float = 3
 
     @classmethod
-    def create(
-        cls, x: int, y: int, width: int, height: int, color: Color, bg_color: Color
-    ):
+    def create(cls, x: int, y: int, color: Color, bg_color: Color):
         self = cls()
-        self.base_x = x
-        self.base_y = y
-        self.base_width = width
-        self.base_height = height
+        self.base_x = x * 30 + 2
+        self.base_y = y * 30 + 2
+        self.base_width = 4
+        self.base_height = 4
         self.color = color
         self.bg_color = bg_color
 

@@ -1,12 +1,12 @@
 import math
 import random
 import time
-from typing import TYPE_CHECKING, List, Optional, Set, Tuple
-from typing_extensions import override
+from typing import TYPE_CHECKING, Dict, List, Optional, Set, Tuple
 
 import pygame
 from pygame import Rect, Surface
 from pygame.sprite import Group, Sprite
+from typing_extensions import override
 
 from src.const import *
 from src.maze import Maze, MazePath, get_path
@@ -226,7 +226,7 @@ class Ghost(Sprite):
             direction = self.next_direction(level)
             self.__direction_update = time.time()
 
-        preset = 0
+        idx = 0
 
         while True:
             self.changeSpeed(direction)  # type: ignore
@@ -235,13 +235,13 @@ class Ghost(Sprite):
                 self.__last_direction = direction  # type: ignore
                 return
 
-            arr: List[Tuple[float, Direction, Direction]] = []
+            preset = {}  # type: Dict[float, Tuple[Direction, Direction]]
 
             for wall in collide:
-                arr.extend(direction_preset(self.rect, wall.rect))
-            arr.sort(key=lambda x: x[0])
-            direction = arr[0][1 + preset]
-            preset = (preset + 1) % 2
+                preset |= {i[0]: i[1:] for i in direction_preset(self.rect, wall.rect)}
+
+            direction = preset[min(preset)][idx]
+            idx = (idx + 1) % 2
 
     def set_worried(self, worried: bool) -> None:
         self.__worried = worried

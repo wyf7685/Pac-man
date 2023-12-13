@@ -7,7 +7,7 @@ from pygame.sprite import Group
 
 from src.const import *
 from src.maze import generate_maze
-from src.sprites import Food, Ghost, Hero, Wall, Gate
+from src.sprites import Food, Gate, Ghost, Hero, Wall
 
 
 class _LevelData_no_food(BaseModel):
@@ -25,7 +25,7 @@ class _LevelData_no_food(BaseModel):
 
 class _LevelData(BaseModel):
     seq: int
-    """关卡序号，标识关卡在游戏内出现的顺序"""
+    """关卡序号，即关卡在游戏内出现的顺序"""
     name: str
     """关卡名，显示在游戏界面下方状态栏"""
     hero: List[Position]
@@ -63,6 +63,7 @@ class _LevelData(BaseModel):
 class Level(object):
     _data: _LevelData
     name: str
+    score: int
     maze: List[List[int]]
     walls: "Group[Wall]"
     gates: "Group[Wall]"
@@ -72,9 +73,10 @@ class Level(object):
 
     def __init__(self, data: _LevelData):
         self._data = data
-        self.name = data.name
+        self.name = self._data.name
 
     def setup(self, wall_color: Color = SKYBLUE, gate_color: Color = WHITE):
+        self.score = 0
         load_images()
         self.setup_wall(wall_color)
         self.setup_gate(gate_color)
@@ -128,9 +130,7 @@ class Level(object):
                 if self.maze[col][row] == 0 or invalid(row, col):
                     continue
 
-                fcol = 30 * col + 2
-                frow = 30 * row + 2
-                food = Food.create(fcol, frow, 4, 4, food_color, bg_color)
+                food = Food.create(col, row, food_color, bg_color)
                 if pygame.sprite.spritecollide(food, self.walls, False):
                     continue
                 if pygame.sprite.spritecollide(food, self.heroes, False):
