@@ -11,9 +11,6 @@ from src.sprites import Food
 
 def startLevelGame(level: Level, screen: pygame.Surface):
     clock = pygame.time.Clock()
-    font = pygame.font.Font(FONTPATH, 18)
-    level_name_text = font.render(level.name, True, YELLOW)
-
     level.setup()
     running = True
 
@@ -26,12 +23,12 @@ def startLevelGame(level: Level, screen: pygame.Surface):
         if time.time() - start_time <= 13:
             idx = min(round((time.time() - start_time) / 3), 3)
             start_ghost[idx].is_move = True
-    
+
         for event in pygame.event.get():
             if event.type == pygame.QUIT:
                 pygame.quit()
                 sys.exit()
-    
+
             elif event.type == pygame.KEYDOWN:
                 if event.key == pygame.K_ESCAPE:
                     pause_time = time.time()
@@ -43,31 +40,28 @@ def startLevelGame(level: Level, screen: pygame.Surface):
                 elif len(heros) > 1 and event.key in HERO2_KEYMAP:
                     heros[1].changeSpeed(HERO2_KEYMAP[event.key])
                     heros[1].is_move = True
-    
+
             elif event.type == pygame.KEYUP:
                 if event.key in list(HERO_KEYMAP):
                     heros[0].is_move = False
                 elif len(heros) > 1 and event.key in HERO2_KEYMAP:
                     heros[1].is_move = False
-    
+
         # Update sprites
         level.heroes.update(level, food_eaten)
         level.foods.update()
         level.ghosts.update(level)
-    
-        # Render screen
+
+        # Draw screen
         screen.fill(BLACK)
-        level.draw(screen)
-        rect = screen.blit(level_name_text, (10, 610))
         level.score += len(food_eaten)
         food_eaten.clear()
-        score_text = font.render(f"Score: {level.score}", True, RED)
-        screen.blit(score_text, (rect.right + 40, 610))
-    
+        level.draw(screen)
+
         # Check game status
         if len(level.foods) == 0:
             break
-    
+
         # Check if hero crashed into ghosts
         if collide := pygame.sprite.groupcollide(
             level.heroes, level.ghosts, False, False
@@ -83,7 +77,7 @@ def startLevelGame(level: Level, screen: pygame.Surface):
                     # Otherwise, stop the game
                     else:
                         running = False
-    
+
         pygame.display.flip()
         clock.tick(60)
 

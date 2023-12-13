@@ -61,6 +61,7 @@ class _LevelData(BaseModel):
 
 
 class Level(object):
+    _font: pygame.font.Font
     _data: _LevelData
     name: str
     score: int
@@ -72,6 +73,7 @@ class Level(object):
     foods: "Group[Food]"
 
     def __init__(self, data: _LevelData):
+        self._font = pygame.font.Font(FONTPATH, 18)
         self._data = data
         self.name = self._data.name
 
@@ -89,6 +91,11 @@ class Level(object):
         self.heroes.draw(screen)
         self.foods.draw(screen)
         self.ghosts.draw(screen)
+
+        level_name = self._font.render(self.name, True, YELLOW)
+        rect = screen.blit(level_name, (10, 610))
+        score = self._font.render(f"Score: {self.score}", True, RED)
+        screen.blit(score, (rect.right + 40, 610))
 
     def setup_wall(self, wall_color: Color):
         self.maze = generate_maze(self._data.wall)

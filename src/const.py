@@ -13,7 +13,7 @@ BLUE = Color(0, 0, 255)
 GREEN = Color(0, 255, 0)
 RED = Color(255, 0, 0)
 YELLOW = Color(255, 255, 0)
-PURPLE = Color(255, 0, 255)
+PURPLE = Color(163, 73, 164)
 SKYBLUE = Color(0, 191, 255)
 
 _cwd = os.getcwd()
@@ -77,3 +77,5 @@ def load_images():
             }
         }
     )
+    for im in IMAGES.values():
+        im.set_colorkey(PURPLE)
