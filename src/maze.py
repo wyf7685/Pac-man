@@ -31,21 +31,13 @@ MazePath = List[Pos]
 
 
 def generate_maze(walls: List[Tuple[int, int, int, int]]) -> Maze:
-    large_maze = [[PASS for _ in range(101)] for _ in range(101)]
-
-    # For each segment of the wall, convert it to large_maze with a ratio of pixels:coordinates = 6:1
-    for pos in walls:
-        x, y, w, h = [i // 6 for i in pos]
+    maze = [[PASS for _ in range(21)] for _ in range(21)]
+    for x1, y1, x2, y2 in walls:
         for i, j in itertools.product(
-            range(max(x - 2, 0), min(x + w + 2, 101)),
-            range(max(y - 2, 0), min(y + h + 2, 101)),
+            range(min(x1, x2), max(x1, x2) + 1),
+            range(min(y1, y2), max(y1, y2) + 1),
         ):
-            large_maze[i][j] = WALL
-
-    # Sampling from large_maze to maze
-    maze = [[0 for _ in range(21)] for _ in range(21)]
-    for i, j in itertools.product(range(20), range(20)):
-        maze[i][j] = large_maze[i * 5 + 1][j * 5 + 1]
+            maze[i][j] = WALL
 
     return maze
 

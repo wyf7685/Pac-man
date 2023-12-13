@@ -125,7 +125,6 @@ def pause(screen: pygame.Surface):
 
 
 def showText(screen: pygame.Surface, is_win: bool, is_end: bool):
-    clock = pygame.time.Clock()
     font = pygame.font.Font(FONTPATH, 24)
     msg = "Congratulations, you won!" if is_win else "Game Over!"
     positions = [(145, 233) if is_win else (235, 233), (65, 303), (170, 333)]

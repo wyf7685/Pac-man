@@ -7,7 +7,7 @@ from pygame.sprite import Group
 
 from src.const import *
 from src.maze import generate_maze
-from src.sprites import Food, Ghost, Hero, Wall
+from src.sprites import Food, Ghost, Hero, Wall, Gate
 
 
 class _LevelData_no_food(BaseModel):
@@ -50,13 +50,13 @@ class _LevelData(BaseModel):
     """
     门坐标
 
-    (x, y, width, height)
+    (x1, y1, x2, y2)
     """
     wall: List[Tuple[int, int, int, int]]
     """
     墙坐标
 
-    (x, y, width, height)
+    (x1, y1, x2, y2)
     """
 
 
@@ -82,20 +82,20 @@ class Level(object):
         self.setup_food(YELLOW, WHITE)
 
     def draw(self, screen: pygame.Surface):
-        self.walls.draw(screen)
         self.gates.draw(screen)
+        self.walls.draw(screen)
         self.heroes.draw(screen)
         self.foods.draw(screen)
         self.ghosts.draw(screen)
 
     def setup_wall(self, wall_color: Color):
         self.maze = generate_maze(self._data.wall)
-        walls = [Wall.create(*[*wall, wall_color]) for wall in self._data.wall]
+        walls = [Wall.create(*wall, wall_color) for wall in self._data.wall]
         self.walls = Group(walls)
         return self.walls
 
     def setup_gate(self, gate_color: Color):
-        gates = [Wall.create(*[*gate, gate_color]) for gate in self._data.gate]
+        gates = [Gate.create(*gate, gate_color) for gate in self._data.gate]
         self.gates = Group(gates)
         return self.gates
 
