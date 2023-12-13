@@ -15,15 +15,15 @@ class LevelData(BaseModel):
     """关卡序号，即关卡在游戏内出现的顺序"""
     name: str = Field(default="DEV")
     """关卡名，显示在游戏界面下方状态栏"""
-    hero: List[Position] = Field(default_factory=lambda: [(10, 10)])
+    hero: List[Position] = Field(default_factory=lambda: [(10, 10)].copy())
     """玩家初始位置，可以是1-2个坐标"""
-    blinky: Position = Field(default_factory=lambda: (10, 11))
+    blinky: Position = Field(default=(10, 11))
     """Blinky初始位置"""
-    clyde: Position = Field(default_factory=lambda: (10, 12))
+    clyde: Position = Field(default=(10, 12))
     """Clyde初始位置"""
-    inky: Position = Field(default_factory=lambda: (10, 13))
+    inky: Position = Field(default=(10, 13))
     """Inky初始位置"""
-    pinky: Position = Field(default_factory=lambda: (10, 14))
+    pinky: Position = Field(default=(10, 14))
     """Pinky初始位置"""
     super_food: float = Field(default=0.02)
     """能量豆出现概率"""
