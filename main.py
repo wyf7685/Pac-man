@@ -23,17 +23,6 @@ def startLevelGame(level: Level, screen: pygame.Surface):
     heros = list(level.heroes)
     food_eaten = []  # type: List[Food]
 
-    def renderScreen():
-        nonlocal SCORE
-
-        screen.fill(BLACK)
-        level.draw(screen)
-        rect = screen.blit(level_name_text, (10, 610))
-        SCORE += len(food_eaten)
-        food_eaten.clear()
-        score_text = font.render(f"Score: {SCORE}", True, RED)
-        screen.blit(score_text, (rect.right + 40, 610))
-
     while True:
         if time.time() - start_time <= 13:
             idx = min(round((time.time() - start_time) / 3), 3)
@@ -68,7 +57,13 @@ def startLevelGame(level: Level, screen: pygame.Surface):
         level.ghosts.update(level)
 
         # Render screen
-        renderScreen()
+        screen.fill(BLACK)
+        level.draw(screen)
+        rect = screen.blit(level_name_text, (10, 610))
+        SCORE += len(food_eaten)
+        food_eaten.clear()
+        score_text = font.render(f"Score: {SCORE}", True, RED)
+        screen.blit(score_text, (rect.right + 40, 610))
 
         # Check game status
         if len(level.foods) == 0:
@@ -143,6 +138,11 @@ def showText(screen: pygame.Surface, is_win: bool, is_end: bool):
         font.render("Press ENTER to continue or play again.", True, WHITE),
         font.render("Press ESCAPE to quit.", True, WHITE),
     ]
+
+    for text, position in zip(texts, positions):
+        screen.blit(text, position)
+    pygame.display.flip()
+
     while True:
         for event in pygame.event.get():
             if event.type == pygame.QUIT:
@@ -157,10 +157,6 @@ def showText(screen: pygame.Surface, is_win: bool, is_end: bool):
                 elif event.key == pygame.K_ESCAPE:
                     pygame.quit()
                     sys.exit()
-        for text, position in zip(texts, positions):
-            screen.blit(text, position)
-        pygame.display.flip()
-        clock.tick(10)
 
 
 def main():
