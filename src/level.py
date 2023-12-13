@@ -73,12 +73,12 @@ class Level(object):
     foods: "Group[Food]"
 
     def __init__(self, data: _LevelData):
-        self._font = pygame.font.Font(FONTPATH, 18)
         self._data = data
         self.name = self._data.name
 
     def setup(self, wall_color: Color = SKYBLUE, gate_color: Color = WHITE):
         self.score = 0
+        self._font = pygame.font.Font(FONTPATH, 18)
         load_images()
         self.setup_wall(wall_color)
         self.setup_gate(gate_color)
