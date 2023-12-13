@@ -86,6 +86,7 @@ class Level(object):
         self.setup_food(YELLOW, WHITE)
 
     def draw(self, screen: pygame.Surface):
+        screen.fill(BLACK)
         self.gates.draw(screen)
         self.walls.draw(screen)
         self.heroes.draw(screen)
@@ -96,6 +97,18 @@ class Level(object):
         rect = screen.blit(level_name, (10, 610))
         score = self._font.render(f"Score: {self.score}", True, RED)
         screen.blit(score, (rect.right + 40, 610))
+
+    def update(self, screen: pygame.Surface):
+        eaten = []
+        self.heroes.update(self, eaten)
+        self.score += len(eaten)
+        self.foods.update()
+        self.ghosts.update(self)
+        self.draw(screen)
+
+    @property
+    def finished(self):
+        return len(self.foods) == 0
 
     def setup_wall(self, wall_color: Color):
         self.maze = generate_maze(self._data.wall)

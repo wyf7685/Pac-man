@@ -1,12 +1,10 @@
 import sys
 import time
-from typing import List
 
 import pygame
 
 from src.const import *
 from src.level import LEVELS, Level
-from src.sprites import Food
 
 
 def startLevelGame(level: Level, screen: pygame.Surface):
@@ -17,7 +15,6 @@ def startLevelGame(level: Level, screen: pygame.Surface):
     start_time = time.time()
     start_ghost = list(level.ghosts)
     heros = list(level.heroes)
-    food_eaten = []  # type: List[Food]
 
     while running:
         if time.time() - start_time <= 13:
@@ -47,19 +44,11 @@ def startLevelGame(level: Level, screen: pygame.Surface):
                 elif len(heros) > 1 and event.key in HERO2_KEYMAP:
                     heros[1].is_move = False
 
-        # Update sprites
-        level.heroes.update(level, food_eaten)
-        level.foods.update()
-        level.ghosts.update(level)
-
-        # Draw screen
-        screen.fill(BLACK)
-        level.score += len(food_eaten)
-        food_eaten.clear()
-        level.draw(screen)
+        # Update
+        level.update(screen)
 
         # Check game status
-        if len(level.foods) == 0:
+        if level.finished:
             break
 
         # Check if hero crashed into ghosts
@@ -81,7 +70,7 @@ def startLevelGame(level: Level, screen: pygame.Surface):
         pygame.display.flip()
         clock.tick(60)
 
-    return len(level.foods) == 0
+    return level.finished
 
 
 def pause(screen: pygame.Surface):
