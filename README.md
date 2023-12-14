@@ -28,7 +28,7 @@
 
   `LEVELS` 数组保存各关卡对象。
 
-  `assets/levels/`中目前仅创建第一关(`1.json`)，可以通过编写 json 文件创建新关卡，json 文件参数含义见`src/level.py`注释。
+  `assets/levels/`中目前仅创建第一关(`1.json`)，可以通过[调试模式](#调试模式--debug-mode)创建新关卡，json 文件参数含义见`src/level.py`注释。
 
 - `src/sprites/*.py`
 
