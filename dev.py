@@ -9,18 +9,20 @@ from src.level import Level, LevelData
 pygame.init()
 pygame.display.set_icon(pygame.image.load(ICONPATH))
 screen = pygame.display.set_mode((606, 636))
-pygame.display.set_caption("Pac-Man - DEBUG")
+pygame.display.set_caption("Pac-Man - DEV")
 pygame.font.init()
 font = pygame.font.Font(FONTPATH, 18)
 clock = pygame.time.Clock()
 
-MODE_TEXT = ["NONE", "WALL", "GATE", "FOOD", "blinky", "clyde", "inky", "pinky"]
 data_fp = LEVELPATH / "dev.json"
+if not data_fp.exists():
+    data_fp.write_text("{}")
 data = LevelData.model_validate_json(data_fp.read_text(encoding="utf-8"))
 level = Level(data)
 level.setup()
 prev = pos = (0, 0)
 mode = 0
+MODE_TEXT = ["NONE", "WALL", "GATE", "FOOD", "blinky", "clyde", "inky", "pinky"]
 ops = []  # type: List[Tuple[int, Optional[Tuple[int, int]]]]
 
 

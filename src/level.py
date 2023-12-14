@@ -12,7 +12,7 @@ from src.sprites import Food, Gate, Ghost, Hero, Wall
 
 
 class LevelData(BaseModel):
-    seq: int = Field(default=0)
+    seq: int = Field(default=999)
     """关卡序号，即关卡在游戏内出现的顺序"""
     name: str = Field(default="DEV")
     """关卡名，显示在游戏界面下方状态栏"""
@@ -40,7 +40,14 @@ class LevelData(BaseModel):
 
     (x1, y1, x2, y2)
     """
-    wall: List[Tuple[int, int, int, int]] = Field(default_factory=list)
+    wall: List[Tuple[int, int, int, int]] = Field(
+        default_factory=lambda: [
+            (0, 0, 0, 20),
+            (0, 0, 20, 0),
+            (20, 0, 20, 20),
+            (0, 20, 20, 20),
+        ].copy()
+    )
     """
     墙坐标
 
