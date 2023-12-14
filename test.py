@@ -1,10 +1,10 @@
 import sys
+from typing import List, Tuple, Optional
 
 import pygame
 
 from src.const import *
 from src.level import Level, LevelData
-
 
 pygame.init()
 pygame.display.set_icon(pygame.image.load(ICONPATH))
@@ -14,14 +14,14 @@ pygame.font.init()
 font = pygame.font.Font(FONTPATH, 18)
 clock = pygame.time.Clock()
 
-MODE_TEXT = ["NONE", "WALL", "GATE", "FOOD"]
+MODE_TEXT = ["NONE", "WALL", "GATE", "FOOD", "blinky", "clyde", "inky", "pinky"]
 data_fp = LEVELPATH / "dev.json"
 data = LevelData.model_validate_json(data_fp.read_text(encoding="utf-8"))
 level = Level(data)
 level.setup()
 prev = pos = (0, 0)
 mode = 0
-undo = []  # type: list[int]
+ops = []  # type: List[Tuple[int, Optional[Tuple[int, int]]]]
 
 
 def reload_level():
@@ -38,7 +38,7 @@ def container(id: int):
         case 3:
             return data.no_food
         case _:
-            raise
+            raise ValueError()
 
 
 while True:
@@ -51,14 +51,24 @@ while True:
                 prev = pos
                 pos = pygame.mouse.get_pos()
                 pos = pos[0] // 30, pos[1] // 30
-                if mode:
+                if 1 <= mode <= 3:
                     container(mode).append((prev[0], prev[1], pos[0], pos[1]))
-                    undo.append(mode)
+                    ops.append((mode, None))
+                    mode = 0
+                    reload_level()
+                elif 4 <= mode <= 7:
+                    key = MODE_TEXT[mode]
+                    ops.append((mode, getattr(data, key)))
+                    setattr(data, key, pos)
                     mode = 0
                     reload_level()
             elif event.button == pygame.BUTTON_RIGHT:
-                if undo:
-                    container(undo.pop()).pop()
+                if ops:
+                    op, v = ops.pop()
+                    if 1 <= op <= 3:
+                        container(op).pop()
+                    elif 4 <= op <= 7:
+                        setattr(data, MODE_TEXT[op], v)
                     reload_level()
             elif event.button == pygame.BUTTON_WHEELDOWN:
                 mode = (mode + 1) % len(MODE_TEXT)
