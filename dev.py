@@ -52,7 +52,7 @@ while True:
             if event.button == pygame.BUTTON_LEFT:
                 prev = pos
                 pos = pygame.mouse.get_pos()
-                pos = pos[0] // 30, pos[1] // 30
+                pos = min(pos[0] // 30, 20), min(pos[1] // 30, 20)
                 if 1 <= mode <= 3:
                     container(mode).append((prev[0], prev[1], pos[0], pos[1]))
                     ops.append((mode, None))
