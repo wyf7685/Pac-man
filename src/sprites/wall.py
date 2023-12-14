@@ -1,5 +1,6 @@
 from pygame import Rect, Surface
 from pygame.sprite import Sprite
+from typing_extensions import override
 
 from src.const import Color
 
@@ -30,6 +31,7 @@ class Wall(Sprite):
 class Gate(Wall):
     """Gate"""
 
+    @override
     @classmethod
     def create(cls, x1: int, y1: int, x2: int, y2: int, color: Color):
         x, y = min(x1, x2) * 30 + 2, min(y1, y2) * 30 + 2

@@ -1,7 +1,8 @@
 import math
 import random
 import time
-from typing import TYPE_CHECKING, Dict, List, Optional, Set, Tuple
+from pathlib import Path
+from typing import TYPE_CHECKING, ClassVar, Dict, List, Optional, Set, Tuple
 
 import pygame
 from pygame import Rect, Surface
@@ -11,11 +12,12 @@ from typing_extensions import override
 from src.const import *
 from src.maze import Maze, MazePath, get_path
 
+from .hero import Hero
+from .wall import Wall
+
 if TYPE_CHECKING:
-    from .wall import Wall
     from src.level import Level
 
-from .hero import Hero
 
 CORNER_POS: Set[Position] = {
     (x * 30, y * 30) for x, y in {(1, 1), (1, 19), (19, 1), (19, 19)}
@@ -49,6 +51,9 @@ def direction_preset(this: Rect, wall: Rect):
 class Ghost(Sprite):
     """Ghost"""
 
+    seq: ClassVar[int] = 0
+    __seq: int
+
     role_name: str
     base_image: Surface
     image: Surface
@@ -68,8 +73,8 @@ class Ghost(Sprite):
     __worried: bool = False
     """Mark as alarmed state."""
     __worry_time: float
-    __image_path: str
-    """Image path."""
+    __image_path: Path
+    """Image path"""
 
     __eaten: bool = False
     """Mark as eaten state."""
@@ -80,9 +85,11 @@ class Ghost(Sprite):
     __last_direction: Direction
 
     @classmethod
-    def create(cls, x: int, y: int, image_path: str):
+    def create(cls, x: int, y: int, image_path: Path):
+        cls.seq += 1
         self = cls()
-        self.role_name = image_path.split("/")[-1].split(".")[0]
+        self.__seq = cls.seq
+        self.role_name = image_path.name.split("/")[-1].split(".")[0]
         self.base_image = IMAGES[image_path].copy()
         self.image = self.base_image.copy()
         self.rect = self.image.get_rect()
@@ -176,21 +183,21 @@ class Ghost(Sprite):
             Hero.super_food - time.time() if Hero.super_food is not None else 0.0
         )
 
-        # Return to the birthplace coordinates after being eaten.
+        # Return to the birthplace coordinates after being eaten
         if self.is_eaten():
             self.update_destination(level.maze, self.__start_pos)
-        # Escape from the player when in an alarmed state.
-        # TODO: Optimize the escape algorithm.
+        # Escape from the player when worried
+        # TODO: Optimize the escape algorithm
         elif self.is_worried():
-            arr = []
+            d = {}
             for hero in level.heroes:
-                arr.extend((distance(hero.rect.center, i), i) for i in CORNER_POS)
-            arr.sort(key=lambda x: x[0], reverse=True)
-            self.update_destination(level.maze, arr[0][1])
-        # Chase the player without any special conditions.
-        # TODO: Execute different pursuit strategies based on the role_name.
+                for p in CORNER_POS:
+                    d[distance(hero.rect.center, p)] = p
+            self.update_destination(level.maze, d[max(d)])
+        # Chase the player without any special conditions
+        # TODO: Execute different pursuit strategies based on the role_name
         else:
-            arr = []
+            d = {}
             for hero in level.heroes:
                 dest, path = self.update_destination(
                     level.maze,
@@ -198,12 +205,12 @@ class Ghost(Sprite):
                     instant=True,
                     inplace=False,
                 )
-                arr.append((len(path), dest))
-            arr.sort()
-            self.update_destination(level.maze, arr[0][1])
+                d[len(path)] = dest
+            self.update_destination(level.maze, d[min(d)])
 
         # Find the next target point in the path.
-        x, y = [i // 30 for i in self.rect.center]
+        x = self.rect.centerx // 30
+        y = self.rect.centery // 30
         for i in range(len(self.route)):
             pos = self.route[i]
             if pos.x == x and pos.y == y:
@@ -215,33 +222,8 @@ class Ghost(Sprite):
         if len(self.route) == 1:
             return self.randomDirection()
 
-        n = self.route[1]
-        return ((n.x - pos.x) / 2, (n.y - pos.y) / 2)
-
-    @override
-    def update(self, level: "Level", *args, **kwargs) -> None:
-        if time.time() - self.__direction_update < 0.2:
-            direction = self.__last_direction
-        else:
-            direction = self.next_direction(level)
-            self.__direction_update = time.time()
-
-        idx = 0
-
-        while True:
-            self.changeSpeed(direction)  # type: ignore
-            success, collide = self.check_collide(level.walls, None)
-            if success:
-                self.__last_direction = direction  # type: ignore
-                return
-
-            preset = {}  # type: Dict[float, Tuple[Direction, Direction]]
-
-            for wall in collide:
-                preset |= {i[0]: i[1:] for i in direction_preset(self.rect, wall.rect)}
-
-            direction = preset[min(preset)][idx]
-            idx = (idx + 1) % 2
+        p = self.route[1]
+        return (p.x - pos.x) / 2, (p.y - pos.y) / 2
 
     def set_worried(self, worried: bool) -> None:
         self.__worried = worried
@@ -266,8 +248,36 @@ class Ghost(Sprite):
         img = self.__image_path
         if round(min(self.__worry_time, 3.0) * 10 // 4) % 2:
             if self.is_eaten():
-                img = EatenPATH
+                img = EatenPath
             elif self.is_worried():
-                img = GreyPATH
+                img = GreyPath
 
         self.base_image = IMAGES[img].copy()
+
+    @override
+    def update(self, level: "Level", *args, **kwargs) -> None:
+        now = time.time()
+        self.is_move = (now - level.start) // 2 >= self.__seq - 1
+
+        if now - self.__direction_update < 0.2:
+            direction = self.__last_direction
+        else:
+            direction = self.next_direction(level)
+            self.__direction_update = now
+
+        idx = 0
+
+        while True:
+            self.changeSpeed(direction)  # type: ignore
+            success, collide = self.check_collide(level.walls, None)
+            if success:
+                self.__last_direction = direction  # type: ignore
+                return
+
+            preset = {}  # type: Dict[float, Tuple[Direction, Direction]]
+
+            for wall in collide:
+                preset |= {i[0]: i[1:] for i in direction_preset(self.rect, wall.rect)}
+
+            direction = preset[min(preset)][idx]
+            idx = (idx + 1) % 2

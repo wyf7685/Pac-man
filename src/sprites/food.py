@@ -21,7 +21,7 @@ class Food(Sprite):
     image: Surface
     rect: Rect
     is_super: bool = False
-    super_duration: float = 10.0
+    super_duration: ClassVar[float] = 10.0
     __size: ClassVar[float] = 3
 
     @classmethod

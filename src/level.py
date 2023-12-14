@@ -1,4 +1,5 @@
 import random
+import time
 from typing import List, Tuple
 
 import pygame
@@ -58,8 +59,12 @@ class LevelData(BaseModel):
 class Level(object):
     _font: pygame.font.Font
     _data: LevelData
+
     name: str
     score: int
+    running: bool
+    start: float
+
     maze: List[List[int]]
     walls: "Group[Wall]"
     gates: "Group[Wall]"
@@ -72,8 +77,10 @@ class Level(object):
         self.name = self._data.name
 
     def setup(self, wall_color: Color = SKYBLUE, gate_color: Color = WHITE):
-        self.score = 0
         self._font = pygame.font.Font(FONTPATH, 18)
+        self.score = 0
+        self.running = True
+        self.start = time.time()
         load_images()
         self.setup_wall(wall_color)
         self.setup_gate(gate_color)
@@ -84,23 +91,35 @@ class Level(object):
         screen.fill(BLACK)
         self.gates.draw(screen)
         self.walls.draw(screen)
-        self.heroes.draw(screen)
         self.foods.draw(screen)
         self.ghosts.draw(screen)
+        self.heroes.draw(screen)
 
-        level_name = self._font.render(self.name, True, YELLOW)
-        rect = screen.blit(level_name, (10, 610))
+        name = self._font.render(self.name, True, YELLOW)
+        x = screen.blit(name, (10, 610)).right
         score = self._font.render(f"Score: {self.score}", True, RED)
-        screen.blit(score, (rect.right + 30, 610))
+        screen.blit(score, (x + 30, 610))
 
     def update(self, screen: pygame.Surface):
         eaten = []
         self.heroes.update(self, eaten)
         self.score += len(eaten)
-        Food.update_size()
         self.foods.update()
         self.ghosts.update(self)
+        self.check_hero_collide()
+        Food.update_size()
         self.draw(screen)
+
+    def check_hero_collide(self) -> None:
+        for hero in self.heroes:
+            if ghosts := pygame.sprite.spritecollide(hero, self.ghosts, False):
+                for ghost in ghosts:
+                    if ghost.is_worried():
+                        if not ghost.is_eaten():
+                            ghost.set_eaten(True)
+                            self.score += 10
+                    else:
+                        self.running = False
 
     @property
     def finished(self):
@@ -110,24 +129,25 @@ class Level(object):
         self.maze = generate_maze(self._data.wall)
         walls = [Wall.create(*wall, wall_color) for wall in self._data.wall]
         self.walls = Group(walls)
-        return self.walls
 
     def setup_gate(self, gate_color: Color):
         gates = [Gate.create(*gate, gate_color) for gate in self._data.gate]
         self.gates = Group(gates)
-        return self.gates
 
     def setup_player(self):
         self.heroes = Group()
         for pos, frames in zip(self._data.hero, [HERO_FRAMES, HERO2_FRAMES]):
             self.heroes.add(Hero.create(*pos, frames))
+        if not len(self.heroes):
+            raise ValueError(f"{self.name} 关卡中至少需要有 1 个 Hero")
+
+        Ghost.seq = 0
         self.ghosts = Group(
-            Ghost.create(*self._data.blinky, BlinkyPATH),
-            Ghost.create(*self._data.clyde, ClydePATH),
-            Ghost.create(*self._data.inky, InkyPATH),
-            Ghost.create(*self._data.pinky, PinkyPATH),
+            Ghost.create(*self._data.blinky, BlinkyPath),
+            Ghost.create(*self._data.clyde, ClydePath),
+            Ghost.create(*self._data.inky, InkyPath),
+            Ghost.create(*self._data.pinky, PinkyPath),
         )
-        return self.heroes, self.ghosts
 
     def setup_food(self, food_color: Color, bg_color: Color):
         foods = []  # type: List[Food]
@@ -145,11 +165,11 @@ class Level(object):
 
                 foods.append(food)
 
-        for food in random.sample(foods, round(len(foods) * self._data.super_food)):
+        count = round(len(foods) * self._data.super_food)
+        for food in random.sample(foods, count):
             food.set_super()
 
         self.foods = Group(foods)
-        return self.foods
 
 
 LEVELS = [

@@ -1,4 +1,5 @@
 import time
+from pathlib import Path
 from typing import TYPE_CHECKING, ClassVar, List, Optional, Tuple
 
 import pygame
@@ -24,7 +25,6 @@ class Hero(Sprite):
     base_image: Surface
     image: Surface
     rect: Rect
-    prev: Position
     base_speed: Tuple[int, int]
     speed: Tuple[int, int]
     is_move: bool
@@ -32,7 +32,7 @@ class Hero(Sprite):
     super_food: ClassVar[Optional[float]] = None
 
     @classmethod
-    def create(cls, x: int, y: int, image_path: List[str]) -> "Hero":
+    def create(cls, x: int, y: int, image_path: List[Path]) -> "Hero":
         cls.super_food = None
 
         self = cls()
@@ -43,7 +43,6 @@ class Hero(Sprite):
         self.image = self.base_image.copy()
         self.rect = self.image.get_rect().copy()
         self.rect.center = x * 30 + 3, y * 30 + 3
-        self.prev = self.rect.center
         self.base_speed = (3, 3)
         self.speed = (0, 0)
         self.is_move = False
@@ -71,29 +70,24 @@ class Hero(Sprite):
 
         return self.speed
 
-    def check_collide(self, walls: "Group[Wall]", gates: "Group[Wall]") -> bool:
+    def check_collide(self, level: "Level") -> None:
         if self.nowframe < self.allframe:
             self.nowframe += 0.05
         else:
             self.nowframe = 0
-        self.base_image = self.images[round(self.nowframe)].copy()
-        self.changeSpeed((0, 0))
+        self.base_image = self.images[round(self.nowframe)]
         if not self.is_move:
-            return False
+            return
 
-        self.prev = self.rect.center
+        prev = self.rect.center
         self.rect.centerx += self.speed[0]
         self.rect.centery += self.speed[1]
 
-        collide = pygame.sprite.spritecollide(self, walls, False)
-        if gates:
-            collide.extend(pygame.sprite.spritecollide(self, gates, False))
+        collide = pygame.sprite.spritecollide(self, level.walls, False)
+        collide += pygame.sprite.spritecollide(self, level.gates, False)
 
         if collide:
-            self.rect.center = self.prev
-            return False
-
-        return True
+            self.rect.center = prev
 
     def check_food(self, foods: "Group[Food]") -> List["Food"]:
         now = time.time()
@@ -111,5 +105,5 @@ class Hero(Sprite):
 
     @override
     def update(self, level: "Level", eaten: List["Food"], *args, **kwargs) -> None:
-        self.check_collide(level.walls, level.gates)
+        self.check_collide(level)
         eaten.extend(self.check_food(level.foods))

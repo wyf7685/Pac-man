@@ -10,17 +10,9 @@ from src.level import LEVELS, Level
 def startLevelGame(level: Level, screen: pygame.Surface):
     clock = pygame.time.Clock()
     level.setup()
-    running = True
-
-    start_time = time.time()
-    start_ghost = list(level.ghosts)
     heros = list(level.heroes)
 
-    while running:
-        if time.time() - start_time <= 13:
-            idx = min(round((time.time() - start_time) / 3), 3)
-            start_ghost[idx].is_move = True
-
+    while level.running and not level.finished:
         for event in pygame.event.get():
             if event.type == pygame.QUIT:
                 pygame.quit()
@@ -28,66 +20,38 @@ def startLevelGame(level: Level, screen: pygame.Surface):
 
             elif event.type == pygame.KEYDOWN:
                 if event.key == pygame.K_ESCAPE:
-                    pause_time = time.time()
-                    pause(screen)
-                    start_time += time.time() - pause_time
-                elif event.key in list(HERO_KEYMAP):
-                    heros[0].changeSpeed(HERO_KEYMAP[event.key])
+                    level.start += pause(screen)
+                elif event.key in HERO1_KEYMAP:
+                    heros[0].changeSpeed(HERO1_KEYMAP[event.key])
                     heros[0].is_move = True
                 elif len(heros) > 1 and event.key in HERO2_KEYMAP:
                     heros[1].changeSpeed(HERO2_KEYMAP[event.key])
                     heros[1].is_move = True
 
             elif event.type == pygame.KEYUP:
-                if event.key in list(HERO_KEYMAP):
+                if event.key in HERO1_KEYMAP:
                     heros[0].is_move = False
                 elif len(heros) > 1 and event.key in HERO2_KEYMAP:
                     heros[1].is_move = False
 
-        # Update
         level.update(screen)
-
-        # Check game status
-        if level.finished:
-            break
-
-        # Check if hero crashed into ghosts
-        if collide := pygame.sprite.groupcollide(
-            level.heroes, level.ghosts, False, False
-        ):
-            for ghosts in collide.values():
-                for ghost in ghosts:
-                    if ghost.is_worried():
-                        # If ghost is worried, check is_eaten
-                        if not ghost.is_eaten():
-                            # Not eaten yet, eat it
-                            ghost.set_eaten(True)
-                            level.score += 10
-                    # Otherwise, stop the game
-                    else:
-                        running = False
-
         pygame.display.flip()
         clock.tick(60)
 
-    return level.finished
 
-
-def pause(screen: pygame.Surface):
-    texts = [
-        pygame.font.Font(FONTPATH, 30).render("PAUSED", True, RED),
-        pygame.font.Font(FONTPATH, 24).render("Press ENTER to continue.", True, RED),
-    ]
-    center = screen.get_rect().center[0]
-    positions = [
-        (center - texts[0].get_rect().width // 2, 253),
-        (center - texts[1].get_rect().width // 2, 303),
-    ]
-
-    for text, position in zip(texts, positions):
-        screen.blit(text, position)
+def pause(screen: pygame.Surface) -> float:
+    centerx = screen.get_rect().centerx
+    for t, y, size in zip(
+        ["PAUSED", "Press ENTER to continue."],
+        [253, 303],
+        [30, 24],
+    ):
+        text = pygame.font.Font(FONTPATH, size).render(t, True, RED)
+        x = centerx - text.get_rect().width // 2
+        screen.blit(text, (x, y))
     pygame.display.flip()
 
+    start = time.time()
     while True:
         for event in pygame.event.get():
             if event.type == pygame.QUIT:
@@ -95,25 +59,22 @@ def pause(screen: pygame.Surface):
                 sys.exit()
             elif event.type == pygame.KEYDOWN:
                 if event.key == pygame.K_RETURN:
-                    return
+                    return time.time() - start
 
 
-def showText(screen: pygame.Surface, is_win: bool, is_end: bool):
+def showText(screen: pygame.Surface, is_win: bool, is_end: bool) -> None:
     font = pygame.font.Font(FONTPATH, 24)
-    msg = "Congratulations, you won!" if is_win else "Game Over!"
-    positions = [(145, 233) if is_win else (235, 233), (65, 303), (170, 333)]
-    surface = pygame.Surface((400, 200))
-    surface.set_alpha(10)
-    surface.fill(Color(128, 128, 128))
-    screen.blit(surface, (100, 200))
-    texts = [
-        font.render(msg, True, WHITE),
-        font.render("Press ENTER to continue or play again.", True, WHITE),
-        font.render("Press ESCAPE to quit.", True, WHITE),
-    ]
+    centerx = screen.get_rect().centerx
 
-    for text, position in zip(texts, positions):
-        screen.blit(text, position)
+    texts = [
+        "Congratulations, you won!" if is_win else "Game Over!",
+        "Press ENTER to continue or play again.",
+        "Press ESCAPE to quit.",
+    ]
+    for t, y in zip(texts, [233, 303, 333]):
+        text = font.render(t, True, WHITE)
+        x = centerx - text.get_rect().width // 2
+        screen.blit(text, (x, y))
     pygame.display.flip()
 
     while True:
@@ -132,7 +93,7 @@ def showText(screen: pygame.Surface, is_win: bool, is_end: bool):
                     sys.exit()
 
 
-def main():
+def main() -> None:
     pygame.init()
     pygame.display.set_icon(pygame.image.load(ICONPATH))
     screen = pygame.display.set_mode((606, 636))
@@ -144,8 +105,8 @@ def main():
     pygame.key.set_repeat(1, 1)
 
     for idx, level in enumerate(LEVELS):
-        is_win = startLevelGame(level, screen)
-        showText(screen, is_win, idx == len(LEVELS) - 1)
+        startLevelGame(level, screen)
+        showText(screen, level.finished, idx == len(LEVELS) - 1)
 
 
 if __name__ == "__main__":

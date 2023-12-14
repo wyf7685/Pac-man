@@ -1,6 +1,6 @@
-import os
-import typing as _t
 import pathlib as _p
+import typing as _t
+
 import pygame
 from pygame import Color
 
@@ -16,25 +16,28 @@ YELLOW = Color(255, 255, 0)
 PURPLE = Color(163, 73, 164)
 SKYBLUE = Color(0, 191, 255)
 
-_cwd = os.getcwd()
+_ASSETS = _p.Path("assets")
+_SOUNDS = _ASSETS / "sounds"
+_FONT = _ASSETS / "font"
+_IMAGES = _ASSETS / "images"
+LEVELPATH = _ASSETS / "levels"
 
-BGMPATH = os.path.join(_cwd, "assets/sounds/bg.mp3")
-FONTPATH = os.path.join(_cwd, "assets/font/ALGER.TTF")
-ICONPATH = os.path.join(_cwd, "assets/images/icon.png")
-HEROPATH_1_1 = os.path.join(_cwd, "assets/images/pacman_1_1.png")
-HEROPATH_1_2 = os.path.join(_cwd, "assets/images/pacman_1_2.png")
-HEROPATH_2_1 = os.path.join(_cwd, "assets/images/pacman_2_1.png")
-HEROPATH_2_2 = os.path.join(_cwd, "assets/images/pacman_2_2.png")
-BlinkyPATH = os.path.join(_cwd, "assets/images/Blinky.png")
-ClydePATH = os.path.join(_cwd, "assets/images/Clyde.png")
-InkyPATH = os.path.join(_cwd, "assets/images/Inky.png")
-PinkyPATH = os.path.join(_cwd, "assets/images/Pinky.png")
-GreyPATH = os.path.join(_cwd, "assets/images/Grey.png")
-EatenPATH = os.path.join(_cwd, "assets/images/Eaten.png")
+BGMPATH = _SOUNDS / "bg.mp3"
+FONTPATH = _FONT / "ALGER.TTF"
+ICONPATH = _IMAGES / "icon.png"
+Hero1Path1 = _IMAGES / "pacman_1_1.png"
+Hero1Path2 = _IMAGES / "pacman_1_2.png"
+Hero2Path1 = _IMAGES / "pacman_2_1.png"
+Hero2Path2 = _IMAGES / "pacman_2_2.png"
+BlinkyPath = _IMAGES / "Blinky.png"
+ClydePath = _IMAGES / "Clyde.png"
+InkyPath = _IMAGES / "Inky.png"
+PinkyPath = _IMAGES / "Pinky.png"
+GreyPath = _IMAGES / "Grey.png"
+EatenPath = _IMAGES / "Eaten.png"
 
-LEVELPATH = _p.Path("assets/levels")
 
-HERO_KEYMAP: _t.Dict[int, Direction] = {
+HERO1_KEYMAP: _t.Dict[int, Direction] = {
     pygame.K_LEFT: (-1, 0),
     pygame.K_RIGHT: (1, 0),
     pygame.K_UP: (0, -1),
@@ -47,10 +50,10 @@ HERO2_KEYMAP: _t.Dict[int, Direction] = {
     pygame.K_s: (0, 1),
 }
 
-HERO_FRAMES: _t.List[str] = [HEROPATH_1_1, HEROPATH_1_2]
-HERO2_FRAMES: _t.List[str] = [HEROPATH_2_1, HEROPATH_2_2]
+HERO_FRAMES: _t.List[_p.Path] = [Hero1Path1, Hero1Path2]
+HERO2_FRAMES: _t.List[_p.Path] = [Hero2Path1, Hero2Path2]
 
-IMAGES: _t.Dict[str, pygame.Surface] = {}
+IMAGES: _t.Dict[_p.Path, pygame.Surface] = {}
 
 
 def load_images():
@@ -64,16 +67,16 @@ def load_images():
             p: pygame.image.load(p).convert()
             for p in {
                 ICONPATH,
-                HEROPATH_1_1,
-                HEROPATH_1_2,
-                HEROPATH_2_1,
-                HEROPATH_2_2,
-                BlinkyPATH,
-                ClydePATH,
-                InkyPATH,
-                PinkyPATH,
-                GreyPATH,
-                EatenPATH,
+                Hero1Path1,
+                Hero1Path2,
+                Hero2Path1,
+                Hero2Path2,
+                BlinkyPath,
+                ClydePath,
+                InkyPath,
+                PinkyPath,
+                GreyPath,
+                EatenPath,
             }
         }
     )

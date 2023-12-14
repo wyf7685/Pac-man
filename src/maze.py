@@ -19,11 +19,15 @@ class Pos:
     def __repr__(self) -> str:
         return f"Pos({self.x},{self.y})"
 
+    def __eq__(self, pos: "Pos") -> bool:
+        return self.x == pos.x and self.y == pos.y
+
     def copy(self) -> "Pos":
         return Pos(self.x, self.y)
 
     def offset(self, offset: Tuple[int, int]) -> "Pos":
-        return Pos(self.x + offset[0], self.y + offset[1])
+        ox, oy = offset
+        return Pos(self.x + ox, self.y + oy)
 
 
 Maze = List[List[int]]
@@ -32,6 +36,7 @@ MazePath = List[Pos]
 
 def generate_maze(walls: List[Tuple[int, int, int, int]]) -> Maze:
     maze = [[PASS for _ in range(21)] for _ in range(21)]
+
     for x1, y1, x2, y2 in walls:
         for i, j in itertools.product(
             range(min(x1, x2), max(x1, x2) + 1),
@@ -64,26 +69,21 @@ def get_path(maze: Maze, start_pos: Tuple[int, int], end_pos: Tuple[int, int]):
         cur = que[0]
         for offset in base_offset:
             next = cur.offset(offset)
-            if maze[next.x][next.y] == PASS:
-                que.append(next)
-                path[next.x][next.y] = cur.copy()
-                if next.x == end.x and next.y == end.y:
-                    flag = True
-                    break
-                maze[next.x][next.y] = PASSED
-            elif maze[next.x][next.y] == WALL and next.x == end.x and next.y == end.y:
+            if next == end:
                 path[next.x][next.y] = cur.copy()
                 flag = True
                 break
+            elif maze[next.x][next.y] == PASS:
+                que.append(next)
+                path[next.x][next.y] = cur.copy()
+                maze[next.x][next.y] = PASSED
         que.popleft()
 
     cur = next
-    result = []  # type: List[Pos]
-    result.insert(0, cur)
+    result = [cur]
     prev = path[cur.x][cur.y]
     while prev is not None:
-        cur = prev
-        result.insert(0, cur)
+        result.append(cur := prev)
         prev = path[cur.x][cur.y]
 
-    return result
+    return result[::-1]
