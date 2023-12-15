@@ -6,11 +6,26 @@
 
 ## 运行方法 / Usage
 
-1. 执行 `poetry install` 命令，使用 `poetry` 包管理器创建虚拟环境。
+1. 下载源代码并解压，或使用 `git` 克隆此仓库。
+```sh
+git clone https://github.com/wyf7685/Pac-man
+cd Pac-man
+```
 
-2. 执行 `poetry run python main.py` 命令，开始游戏。
+2. 使用 `poetry` 包管理器创建虚拟环境。
+```sh
+poetry install --no-root
+```
+> 在此之前，请确保你已经安装了 `poetry` 包管理器: 
+> 
+> `pip install --upgrade poetry`
 
-3. 使用方向键 (`↑↓←→`) 控制角色移动。
+3. 在虚拟环境中运行`main.py`，开始游戏。
+```sh
+poetry run python main.py
+```
+
+4. 使用方向键 (`↑↓←→`) 控制角色移动。
 
 ## 程序说明 / Description
 
@@ -38,7 +53,7 @@
 
   包含一个`BFS`算法实现的迷宫寻路函数，用于在游戏中实现`Ghost`的寻路能力。
 
-- `test.py`
+- `dev.py`
 
   调试模式，运行时读取`assets/levels/dev.json`中的关卡数据，生成静态地图，并提供关卡编辑功能 (详见[调试模式](#调试模式--debug-mode))。
 
@@ -64,7 +79,7 @@
 - 在游戏界面内右键，撤销上一步操作。
 
 > Note：暂不支持设置玩家的初始位置，请前往`assets/levels/dev.json`手动填入玩家坐标。填写格式参考`src/level.py`中`LevelData`类的注释。
->
+> 
 > ~~也许后续会加这个功能？~~
 
 完成地图的绘制后，请修改`dev.json`中的`seq`和`name`字段，并重命名该文件。
