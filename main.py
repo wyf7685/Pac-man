@@ -7,7 +7,7 @@ from src.const import *
 from src.level import LEVELS, Level
 
 
-def startLevelGame(level: Level, screen: pygame.Surface):
+def startGame(level: Level, screen: pygame.Surface):
     clock = pygame.time.Clock()
     level.setup()
     heros = list(level.heroes)
@@ -41,11 +41,11 @@ def startLevelGame(level: Level, screen: pygame.Surface):
 
 def pause(screen: pygame.Surface) -> float:
     centerx = screen.get_rect().centerx
-    for t, y, size in zip(
-        ["PAUSED", "Press ENTER to continue."],
-        [253, 303],
-        [30, 24],
-    ):
+    texts = [
+        ("PAUSED", 253, 30),
+        ("Press ENTER to continue.", 303, 24),
+    ]
+    for t, y, size in texts:
         text = pygame.font.Font(FONTPATH, size).render(t, True, RED)
         x = centerx - text.get_rect().width // 2
         screen.blit(text, (x, y))
@@ -105,7 +105,7 @@ def main() -> None:
     pygame.key.set_repeat(1, 1)
 
     for idx, level in enumerate(LEVELS):
-        startLevelGame(level, screen)
+        startGame(level, screen)
         showText(screen, level.finished, idx == len(LEVELS) - 1)
 
 

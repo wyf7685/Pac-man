@@ -87,18 +87,20 @@ class Level(object):
         self._font = pygame.font.Font(FONTPATH, 18)
         self.score = 0
         self.running = True
-        self.start = time.time()
         load_images()
         self.setup_wall(wall_color)
         self.setup_gate(gate_color)
         self.setup_player()
         self.setup_food(YELLOW, WHITE)
+        self.start = time.time()
 
     def draw(self, screen: pygame.Surface):
         screen.fill(BLACK)
         self.gates.draw(screen)
         self.walls.draw(screen)
         self.foods.draw(screen)
+        # for ghost in self.ghosts:
+        #     ghost.draw_path().draw(screen)
         self.ghosts.draw(screen)
         self.heroes.draw(screen)
 

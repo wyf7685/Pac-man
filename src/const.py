@@ -13,8 +13,10 @@ BLUE = Color(0, 0, 255)
 GREEN = Color(0, 255, 0)
 RED = Color(255, 0, 0)
 YELLOW = Color(255, 255, 0)
+ORANGE = Color(254, 189, 17)
 PURPLE = Color(163, 73, 164)
 SKYBLUE = Color(0, 191, 255)
+PINK = Color(246, 164, 162)
 
 _ASSETS = _p.Path("assets")
 _SOUNDS = _ASSETS / "sounds"
@@ -52,6 +54,12 @@ HERO2_KEYMAP: _t.Dict[int, Direction] = {
 
 HERO_FRAMES: _t.List[_p.Path] = [Hero1Path1, Hero1Path2]
 HERO2_FRAMES: _t.List[_p.Path] = [Hero2Path1, Hero2Path2]
+GHOST_COLOR: _t.Dict[str, Color] = {
+    "Blinky": RED,
+    "Clyde": ORANGE,
+    "Inky": BLUE,
+    "Pinky": PINK,
+}
 
 IMAGES: _t.Dict[_p.Path, pygame.Surface] = {}
 

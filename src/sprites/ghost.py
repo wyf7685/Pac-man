@@ -13,7 +13,7 @@ from src.const import *
 from src.maze import Maze, MazePath, get_path
 
 from .hero import Hero
-from .wall import Wall
+from .wall import Wall, Gate
 
 if TYPE_CHECKING:
     from src.level import Level
@@ -281,3 +281,18 @@ class Ghost(Sprite):
 
             direction = preset[min(preset)][idx]
             idx = (idx + 1) % 2
+
+    # test only
+    def draw_path(self) -> "Group[Wall]":
+        group = Group()
+
+        for i in range(len(self.route) - 1):
+            pos1 = self.route[i]
+            pos2 = self.route[i + 1]
+            line = Gate.create(
+                pos1.x, pos1.y, pos2.x, pos2.y, GHOST_COLOR[self.role_name]
+            )
+            line.image.set_alpha(200)
+            group.add(line)
+
+        return group
