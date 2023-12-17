@@ -3,12 +3,14 @@ from collections import deque
 from copy import deepcopy
 from typing import List, Optional, Tuple
 
+from src.const import Position, Region
+
 WALL = 0
 PASS = 1
 PASSED = 2
 
 
-class Pos:
+class Pos(object):
     x: int
     y: int
 
@@ -30,11 +32,11 @@ class Pos:
         return Pos(self.x + ox, self.y + oy)
 
 
-Maze = List[List[int]]
-MazePath = List[Pos]
+type Maze = List[List[int]]
+type MazePath = List[Pos]
 
 
-def generate_maze(walls: List[Tuple[int, int, int, int]]) -> Maze:
+def generate_maze(walls: List[Region]) -> Maze:
     maze = [[PASS for _ in range(21)] for _ in range(21)]
 
     for x1, y1, x2, y2 in walls:
@@ -47,7 +49,7 @@ def generate_maze(walls: List[Tuple[int, int, int, int]]) -> Maze:
     return maze
 
 
-def get_path(maze: Maze, start_pos: Tuple[int, int], end_pos: Tuple[int, int]):
+def get_path(maze: Maze, start_pos: Position, end_pos: Position):
     # sourcery skip: avoid-builtin-shadow
     # Deep copy the maze array to avoid subsequent impact
     maze = deepcopy(maze)

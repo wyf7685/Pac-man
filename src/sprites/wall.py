@@ -1,6 +1,7 @@
+from typing import override
+
 from pygame import Rect, Surface
 from pygame.sprite import Sprite
-from typing_extensions import override
 
 from src.const import *
 

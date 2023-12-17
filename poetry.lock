@@ -251,5 +251,5 @@ reference = "tuna"
 
 [metadata]
 lock-version = "2.0"
-python-versions = "^3.11"
-content-hash = "a55f7edafe3e0fc6621b0595fe4159adbf9bdcd20ad4457ba2460393a09c1420"
+python-versions = "^3.12"
+content-hash = "26bb36b29536063a9d0c3a411a547d1f7a6d05ee63a0da3e164871be683ced00"

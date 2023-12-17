@@ -1,14 +1,13 @@
 import random
 import time
-from typing import List, Tuple
+from typing import List
 
 import pygame
 from pydantic import BaseModel, Field
-from pygame.sprite import Group
 
 from src.const import *
-from src.maze import generate_maze
-from src.sprites import Food, Gate, Ghost, Hero, Wall
+from src.maze import generate_maze, Maze
+from src.sprites import Food, Gate, Ghost, Hero, Wall, Group
 
 
 class LevelData(BaseModel):
@@ -28,19 +27,19 @@ class LevelData(BaseModel):
     """Pinky初始位置"""
     super_food: float = Field(default=0.02)
     """能量豆出现概率"""
-    no_food: List[Tuple[int, int, int, int]] = Field(default_factory=list)
+    no_food: List[Region] = Field(default_factory=list)
     """
     禁止生成食物的区域
     
     (x1, y1, x2, y2)
     """
-    gate: List[Tuple[int, int, int, int]] = Field(default_factory=list)
+    gate: List[Region] = Field(default_factory=list)
     """
     门坐标
 
     (x1, y1, x2, y2)
     """
-    wall: List[Tuple[int, int, int, int]] = Field(
+    wall: List[Region] = Field(
         default_factory=lambda: [
             (0, 0, 0, 20),
             (0, 0, 20, 0),
@@ -72,12 +71,12 @@ class Level(object):
     running: bool
     start: float
 
-    maze: List[List[int]]
-    walls: "Group[Wall]"
-    gates: "Group[Wall]"
-    heroes: "Group[Hero]"
-    ghosts: "Group[Ghost]"
-    foods: "Group[Food]"
+    maze: Maze
+    walls: Group[Wall]
+    gates: Group[Wall]
+    heroes: Group[Hero]
+    ghosts: Group[Ghost]
+    foods: Group[Food]
 
     def __init__(self, data: LevelData):
         self._data = data
@@ -144,11 +143,12 @@ class Level(object):
         self.gates = Group(gates)
 
     def setup_player(self):
-        self.heroes = Group()
+        if not len(self._data.hero):
+            raise ValueError(f"{self.name} 关卡中至少需要有 1 个 Hero")
+
+        self.heroes = Group[Hero]()
         for pos, frames in zip(self._data.hero, [HERO_FRAMES, HERO2_FRAMES]):
             self.heroes.add(Hero.create(*pos, frames))
-        if not len(self.heroes):
-            raise ValueError(f"{self.name} 关卡中至少需要有 1 个 Hero")
 
         Ghost.seq = 0
         self.ghosts = Group(

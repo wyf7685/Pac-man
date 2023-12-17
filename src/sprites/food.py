@@ -1,9 +1,8 @@
-from typing import Any, ClassVar
+from typing import Any, ClassVar, override
 
 import pygame
 from pygame import Rect, Surface
 from pygame.sprite import Sprite
-from typing_extensions import override
 
 from src.const import Color
 

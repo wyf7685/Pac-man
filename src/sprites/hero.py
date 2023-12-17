@@ -1,19 +1,18 @@
 import time
 from pathlib import Path
-from typing import TYPE_CHECKING, ClassVar, List, Optional, Tuple
+from typing import TYPE_CHECKING, ClassVar, List, Optional, Tuple, override
 
 import pygame
 from pygame import Rect, Surface
-from pygame.sprite import Group, Sprite
-from typing_extensions import override
+from pygame.sprite import Sprite
 
 from src.const import *
 
+from .food import Food
+from .group import Group
+
 if TYPE_CHECKING:
     from src.level import Level
-
-    from .food import Food
-    from .wall import Wall
 
 
 class Hero(Sprite):
@@ -89,7 +88,7 @@ class Hero(Sprite):
         if collide:
             self.rect.center = prev
 
-    def check_food(self, foods: "Group[Food]") -> List["Food"]:
+    def check_food(self, foods: Group[Food]) -> List["Food"]:
         now = time.time()
 
         eaten = pygame.sprite.spritecollide(self, foods, True)

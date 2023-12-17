@@ -2,18 +2,18 @@ import math
 import random
 import time
 from pathlib import Path
-from typing import TYPE_CHECKING, ClassVar, Dict, List, Optional, Set, Tuple
+from typing import TYPE_CHECKING, ClassVar, Dict, List, Optional, Set, Tuple, override
 
 import pygame
 from pygame import Rect, Surface
-from pygame.sprite import Group, Sprite
-from typing_extensions import override
+from pygame.sprite import Sprite
 
 from src.const import *
 from src.maze import Maze, MazePath, get_path
 
 from .hero import Hero
 from .wall import Wall, Gate
+from .group import Group
 
 if TYPE_CHECKING:
     from src.level import Level
@@ -283,8 +283,8 @@ class Ghost(Sprite):
             idx = (idx + 1) % 2
 
     # test only
-    def draw_path(self) -> "Group[Wall]":
-        group = Group()
+    def draw_path(self) -> Group[Wall]:
+        group = Group[Wall]()
 
         for i in range(len(self.route) - 1):
             pos1 = self.route[i]
