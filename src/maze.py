@@ -57,8 +57,8 @@ def get_path(maze: Maze, start_pos: Position, end_pos: Position):
     start = Pos(*[i // 30 for i in start_pos])
     end = Pos(*[i // 30 for i in end_pos])
 
-    que = deque()  # type: deque[Pos]
-    path = [[None for _ in line] for line in maze]  # type: List[List[Optional[Pos]]]
+    que: deque[Pos] = deque()
+    path: List[List[Optional[Pos]]] = [[None for _ in line] for line in maze]
     # Coordinate offsets for each iteration.
     base_offset = [(1, 0), (-1, 0), (0, 1), (0, -1)]
     flag = False
