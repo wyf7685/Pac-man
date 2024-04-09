@@ -6,6 +6,7 @@ from pygame.sprite import Sprite
 
 # Try to use the annotation in py3.12
 
+
 class Group[S: Sprite](BaseGroup):
     spritedict: Dict[S, Optional[Rect]]
     lostsprites: List[Rect]
@@ -44,23 +45,19 @@ class Group[S: Sprite](BaseGroup):
 
     @override
     @overload
-    def add(self, *sprites: S) -> None:
-        ...
+    def add(self, *sprites: S) -> None: ...
 
     @override
     @overload
-    def add(self, *sprites: "Group[S]") -> None:
-        ...
+    def add(self, *sprites: "Group[S]") -> None: ...
 
     @override
     @overload
-    def add(self, *sprites: Iterable[S]) -> None:
-        ...
+    def add(self, *sprites: Iterable[S]) -> None: ...
 
     @override
     @overload
-    def add(self, *sprites: S | "Group[S]" | Iterable[S]) -> None:
-        ...
+    def add(self, *sprites: S | "Group[S]" | Iterable[S]) -> None: ...
 
     @override
     def add(self, *sprites: S | "Group[S]" | Iterable[S]) -> None:
@@ -68,23 +65,19 @@ class Group[S: Sprite](BaseGroup):
 
     @override
     @overload
-    def remove(self, *sprites: S) -> None:
-        ...
+    def remove(self, *sprites: S) -> None: ...
 
     @override
     @overload
-    def remove(self, *sprites: "Group[S]") -> None:
-        ...
+    def remove(self, *sprites: "Group[S]") -> None: ...
 
     @override
     @overload
-    def remove(self, *sprites: Iterable[S]) -> None:
-        ...
+    def remove(self, *sprites: Iterable[S]) -> None: ...
 
     @override
     @overload
-    def remove(self, *sprites: S | "Group[S]" | Iterable[S]) -> None:
-        ...
+    def remove(self, *sprites: S | "Group[S]" | Iterable[S]) -> None: ...
 
     @override
     def remove(self, *sprites: S | "Group[S]" | Iterable[S]) -> None:
@@ -92,23 +85,19 @@ class Group[S: Sprite](BaseGroup):
 
     @override
     @overload
-    def has(self, *sprites: S) -> bool:
-        ...
+    def has(self, *sprites: S) -> bool: ...
 
     @override
     @overload
-    def has(self, *sprites: "Group[S]") -> bool:
-        ...
+    def has(self, *sprites: "Group[S]") -> bool: ...
 
     @override
     @overload
-    def has(self, *sprites: Iterable[S]) -> bool:
-        ...
+    def has(self, *sprites: Iterable[S]) -> bool: ...
 
     @override
     @overload
-    def has(self, *sprites: S | "Group[S]" | Iterable[S]) -> bool:
-        ...
+    def has(self, *sprites: S | "Group[S]" | Iterable[S]) -> bool: ...
 
     @override
     def has(self, *sprites: S | "Group[S]" | Iterable[S]) -> bool:

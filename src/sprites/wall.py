@@ -17,7 +17,7 @@ class Wall(Sprite):
         self = cls()
         self.image = Surface([width, height])
         self.image.fill(color)
-        for p in {(0, 0), (0, height-1), (width-1, 0), (width-1, height-1)}:
+        for p in {(0, 0), (0, height - 1), (width - 1, 0), (width - 1, height - 1)}:
             self.image.set_at(p, BLACK)
         self.image.set_colorkey(BLACK)
         self.rect = self.image.get_rect()
