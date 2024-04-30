@@ -1,0 +1,39 @@
+name: Build
+
+on:
+  push:
+    branches:
+      - main
+    paths:
+      - .github/**
+      - src/**
+      - poetry.lock
+      - pyproject.toml
+
+jobs:
+  build:
+    strategy:
+      matrix:
+        os: [ubuntu, windows]
+    name: "Build: ${{ matrix.os }}"
+    runs-on: ${{ matrix.os }}-latest
+    steps:
+      - uses: actions/checkout@v4
+      - name: Install poetry
+        run: pipx install poetry
+      - name: Set up Python 3.12
+        uses: actions/setup-python@v5
+        with:
+          python-version: "3.12"
+          cache: "poetry"
+      - name: Install dependencies
+        run: |
+          pip install -U poetry pyinstaller Pillow
+          poetry install --no-root
+      - name: Build binary
+        run: |
+          poetry run pyinstaller -Fw --distpath . -i assets/images/icon.png --name Pac-man main.py
+      - uses: actions/upload-artifact@v4
+        with:
+          name: Pac-man_${{ matrix.os }}
+          path: dist/

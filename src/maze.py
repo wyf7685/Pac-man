@@ -21,8 +21,8 @@ class Pos(object):
     def __repr__(self) -> str:
         return f"Pos({self.x},{self.y})"
 
-    def __eq__(self, pos: "Pos") -> bool:
-        return self.x == pos.x and self.y == pos.y
+    def __eq__(self, pos: object) -> bool:
+        return isinstance(pos, self.__class__) and self.x == pos.x and self.y == pos.y
 
     def copy(self) -> "Pos":
         return Pos(self.x, self.y)

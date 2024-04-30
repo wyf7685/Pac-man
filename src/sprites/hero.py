@@ -102,7 +102,6 @@ class Hero(Sprite):
 
         return eaten
 
-    @override
-    def update(self, level: "Level", eaten: List["Food"], *args, **kwargs) -> None:
+    def update(self, level: "Level", eaten: List["Food"], *args, **kwargs) -> None: # type: ignore
         self.check_collide(level)
         eaten.extend(self.check_food(level.foods))

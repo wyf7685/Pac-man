@@ -21,8 +21,7 @@ class Group[S: Sprite](BaseGroup):
     def sprites(self) -> List[S]:
         return list(self.spritedict)
 
-    @override
-    def add_internal(self, sprite: S) -> None:
+    def add_internal(self, sprite: S) -> None: # type: ignore
         self.spritedict[sprite] = None
 
     @override

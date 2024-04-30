@@ -254,8 +254,7 @@ class Ghost(Sprite):
 
         self.base_image = IMAGES[img].copy()
 
-    @override
-    def update(self, level: "Level", *args, **kwargs) -> None:
+    def update(self, level: "Level", *args, **kwargs) -> None: # type: ignore
         now = time.time()
         self.is_move = (now - level.start) // 2 >= self.__seq - 1
 
