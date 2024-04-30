@@ -33,6 +33,7 @@ jobs:
       - name: Build binary
         run: |
           poetry run pyinstaller -Fw -i assets/images/icon.png --name Pac-man main.py
+          mv assets/ dist/
       - uses: actions/upload-artifact@v4
         with:
           name: Pac-man_${{ matrix.os }}
