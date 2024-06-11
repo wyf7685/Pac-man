@@ -1,5 +1,5 @@
 import sys
-from typing import List, Tuple, Optional
+from typing import Tuple, Optional
 
 import pygame
 
@@ -23,7 +23,7 @@ level.setup()
 prev = pos = (0, 0)
 mode = 0
 MODE_TEXT = ["NONE", "WALL", "GATE", "FOOD", "blinky", "clyde", "inky", "pinky"]
-ops = []  # type: List[Tuple[int, Optional[Tuple[int, int]]]]
+ops: list[Tuple[int, Optional[Tuple[int, int]]]] = []
 
 
 def reload_level():

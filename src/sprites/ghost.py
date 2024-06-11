@@ -2,7 +2,7 @@ import math
 import random
 import time
 from pathlib import Path
-from typing import TYPE_CHECKING, ClassVar, Dict, List, Optional, Set, Tuple, override
+from typing import TYPE_CHECKING, ClassVar, Dict, List, Optional, Set, Tuple
 
 import pygame
 from pygame import Rect, Surface
@@ -254,7 +254,7 @@ class Ghost(Sprite):
 
         self.base_image = IMAGES[img].copy()
 
-    def update(self, level: "Level", *args, **kwargs) -> None: # type: ignore
+    def update(self, level: "Level", *args, **kwargs) -> None:
         now = time.time()
         self.is_move = (now - level.start) // 2 >= self.__seq - 1
 
@@ -267,13 +267,13 @@ class Ghost(Sprite):
         idx = 0
 
         while True:
-            self.changeSpeed(direction)  # type: ignore
+            self.changeSpeed(direction)
             success, collide = self.check_collide(level.walls, None)
             if success:
-                self.__last_direction = direction  # type: ignore
+                self.__last_direction = direction
                 return
 
-            preset = {}  # type: Dict[float, Tuple[Direction, Direction]]
+            preset: Dict[float, Tuple[Direction, Direction]] = {}
 
             for wall in collide:
                 preset |= {i[0]: i[1:] for i in direction_preset(self.rect, wall.rect)}
@@ -282,8 +282,8 @@ class Ghost(Sprite):
             idx = (idx + 1) % 2
 
     # test only
-    def draw_path(self) -> Group[Wall]:
-        group = Group[Wall]()
+    def draw_path(self) -> Group[Gate]:
+        group: Group[Gate] = Group()
 
         for i in range(len(self.route) - 1):
             pos1 = self.route[i]

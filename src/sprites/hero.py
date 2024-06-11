@@ -1,6 +1,6 @@
 import time
 from pathlib import Path
-from typing import TYPE_CHECKING, ClassVar, List, Optional, Tuple, override
+from typing import TYPE_CHECKING, ClassVar, List, Optional, Self, Tuple
 
 import pygame
 from pygame import Rect, Surface
@@ -31,7 +31,7 @@ class Hero(Sprite):
     super_food: ClassVar[Optional[float]] = None
 
     @classmethod
-    def create(cls, x: int, y: int, image_path: List[Path]) -> "Hero":
+    def create(cls, x: int, y: int, image_path: List[Path]) -> Self:
         cls.super_food = None
 
         self = cls()
@@ -88,7 +88,7 @@ class Hero(Sprite):
         if collide:
             self.rect.center = prev
 
-    def check_food(self, foods: Group[Food]) -> List["Food"]:
+    def check_food(self, foods: Group[Food]) -> List[Food]:
         now = time.time()
 
         eaten = pygame.sprite.spritecollide(self, foods, True)
@@ -102,6 +102,6 @@ class Hero(Sprite):
 
         return eaten
 
-    def update(self, level: "Level", eaten: List["Food"], *args, **kwargs) -> None: # type: ignore
+    def update(self, level: "Level", eaten: List[Food], *args, **kwargs) -> None:
         self.check_collide(level)
         eaten.extend(self.check_food(level.foods))

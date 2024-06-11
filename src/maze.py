@@ -1,7 +1,7 @@
 import itertools
 from collections import deque
 from copy import deepcopy
-from typing import List, Optional, Tuple
+from typing import List, Optional, Self, Tuple
 
 from src.const import Position, Region
 
@@ -24,12 +24,12 @@ class Pos(object):
     def __eq__(self, pos: object) -> bool:
         return isinstance(pos, self.__class__) and self.x == pos.x and self.y == pos.y
 
-    def copy(self) -> "Pos":
-        return Pos(self.x, self.y)
+    def copy(self) -> Self:
+        return self.__class__(self.x, self.y)
 
-    def offset(self, offset: Tuple[int, int]) -> "Pos":
+    def offset(self, offset: Tuple[int, int]) -> Self:
         ox, oy = offset
-        return Pos(self.x + ox, self.y + oy)
+        return self.__class__(self.x + ox, self.y + oy)
 
 
 type Maze = List[List[int]]

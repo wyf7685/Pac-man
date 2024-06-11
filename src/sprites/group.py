@@ -1,15 +1,13 @@
-from typing import Any, Dict, Iterable, List, Optional, Self, override, overload
+from typing import Any, Iterable, Optional, Self, override, overload
 
 from pygame import Rect
 from pygame.sprite import Group as BaseGroup
 from pygame.sprite import Sprite
 
-# Try to use the annotation in py3.12
-
 
 class Group[S: Sprite](BaseGroup):
-    spritedict: Dict[S, Optional[Rect]]
-    lostsprites: List[Rect]
+    spritedict: dict[S, Optional[Rect]]
+    lostsprites: list[Rect]
 
     @override
     def __init__(self, *sprites: S | "Group[S]" | Iterable[S]) -> None:
@@ -18,7 +16,7 @@ class Group[S: Sprite](BaseGroup):
         self.add(*sprites)
 
     @override
-    def sprites(self) -> List[S]:
+    def sprites(self) -> list[S]:
         return list(self.spritedict)
 
     def add_internal(self, sprite: S) -> None: # type: ignore

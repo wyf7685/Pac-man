@@ -28,17 +28,9 @@ class LevelData(BaseModel):
     super_food: float = Field(default=0.02)
     """能量豆出现概率"""
     no_food: List[Region] = Field(default_factory=list)
-    """
-    禁止生成食物的区域
-    
-    (x1, y1, x2, y2)
-    """
+    """禁止生成食物的区域\n\n(x1, y1, x2, y2)"""
     gate: List[Region] = Field(default_factory=list)
-    """
-    门坐标
-
-    (x1, y1, x2, y2)
-    """
+    """门坐标n\\n(x1, y1, x2, y2)"""
     wall: List[Region] = Field(
         default_factory=lambda: [
             (0, 0, 0, 20),
@@ -47,11 +39,7 @@ class LevelData(BaseModel):
             (0, 20, 20, 20),
         ].copy()
     )
-    """
-    墙坐标
-
-    (x1, y1, x2, y2)
-    """
+    """墙坐标\n\n(x1, y1, x2, y2)"""
 
     def validate_food(self, x: int, y: int) -> bool:
         for x1, y1, x2, y2 in self.no_food:
