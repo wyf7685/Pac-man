@@ -1,20 +1,17 @@
-[tool.poetry]
+[project]
 name = "pac-man"
 version = "0.1.0"
-description = ""
-authors = ["wyf7685 <wyf7685@163.com>", "Jackpot-Z <example@example.com>"]
+description = "game Pac-man"
+authors = [
+    { name = "wyf7685", email = "wyf7685@163.com" },
+    { name = "Jackpot-Z", email = "example@example.com" },
+]
 readme = "README.md"
+requires-python = ">=3.12"
+dependencies = ["pydantic>=2.9.1", "pygame>=2.6.0"]
 
-[tool.poetry.dependencies]
-python = "^3.12"
-pygame = "^2.6.0"
-pydantic = "^2.9.1"
-
-[[tool.poetry.source]]
-name = "tuna"
-url = "https://pypi.tuna.tsinghua.edu.cn/simple"
-priority = "primary"
-
-[build-system]
-requires = ["poetry-core"]
-build-backend = "poetry.core.masonry.api"
+[tool.uv]
+dev-dependencies = [
+    "pillow>=10.4.0",
+    "pyinstaller>=6.10.0",
+]
